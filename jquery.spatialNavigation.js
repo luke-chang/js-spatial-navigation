@@ -1,7 +1,7 @@
 /*
  * An implementation of Spatial Navigation for jQuery.
  *
- * Copyright (c) 2014 Luke Chang.
+ * Copyright (c) 2015 Luke Chang.
  * https://github.com/luke-chang/jquery-spatialNavigation
  *
  * Licensed under the MPL license.
@@ -99,7 +99,7 @@
     function partition(rects, target_rect) {
         var groups = [[], [], [], [], [], [], [], [], []];
 
-        rects.forEach(function(rect) {
+        $.each(rects, function(i, rect) {
             var center = rect.center;
             var x, y, group_id;
 
@@ -121,6 +121,40 @@
 
             group_id = y * 3 + x;
             groups[group_id].push(rect);
+
+            if(target_rect.center) {
+                if(rect.left < target_rect.center.x) {
+                    if(group_id === 2) {
+                        groups[1].push(rect);
+                    } else if(group_id === 8) {
+                        groups[7].push(rect);
+                    }
+                }
+
+                if(rect.right > target_rect.center.x) {
+                    if(group_id === 0) {
+                        groups[1].push(rect);
+                    } else if(group_id === 6) {
+                        groups[7].push(rect);
+                    }
+                }
+
+                if(rect.top < target_rect.center.y) {
+                    if(group_id === 6) {
+                        groups[3].push(rect);
+                    } else if(group_id === 8) {
+                        groups[5].push(rect);
+                    }
+                }
+
+                if(rect.bottom > target_rect.center.y) {
+                    if(group_id === 0) {
+                        groups[3].push(rect);
+                    } else if(group_id === 2) {
+                        groups[5].push(rect);
+                    }
+                }
+            }
         });
 
         return groups;
@@ -276,12 +310,12 @@
         var dest;
 
         if(!options.ignorePrevious && previous.destination === start && previous.reverse === direction) {
-            for(var i = 0; i < dest_group.length; i++) {
-                if(dest_group[i].element === previous.start) {
-                    dest = dest_group[i].element;
-                    break;
+            $.each(dest_group, function(i, dg) {
+                if(dg.element === previous.start) {
+                    dest = dg.element;
+                    return false;
                 }
-            }
+            });
         }
 
         if(!dest) dest = dest_group[0].element;
