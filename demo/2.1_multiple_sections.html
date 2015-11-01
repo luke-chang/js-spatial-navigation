@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>jquery-SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="css/style_2.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+      $(function() {
+        var SN = $.SpatialNavigation();
+
+        SN.add({
+          id: 'menu',
+          selector: '.leftbox .focusable'
+        });
+
+        // You can add multiple sections at any time.
+        SN.add({
+          id: 'content',
+          selector: '.rightbox .focusable'
+        });
+
+        SN.makeFocusable();
+
+        $('.leftbox .focusable')
+          .on('sn:willfocus', function() {
+            // Stop listening key events.
+            SN.pause();
+
+            // Ensure the target element being visible.
+            $(this).ensureVisible(function() {
+              // Focus it manually since we will preventDefault later.
+              // Note: Do not call .focus() directly.
+              //       -- otherwise SpatialNavigation can't keep some status.
+              SN.focus(this);
+
+              // Resume key event handler.
+              SN.resume();
+            });
+
+            // preventDefault so SpatialNavigation won't focus the element.
+            return false;
+          })
+          .on('sn:enter-down', function() {
+            // Do some actions when user presses ENTER key.
+            $('.leftbox .focusable')
+              .removeClass('checked')
+              .filter(this)
+              .addClass('checked');
+
+            $('.rightbox .content')
+              .removeClass('visible')
+              .filter('#content' + $(this).data('id'))
+              .addClass('visible');
+          });
+
+        // Focus the first navigable element in Section "menu".
+        // Note: If the section id is omitted, SpatialNavigation will focus the
+        //       first navigable element in the first-added section.
+        SN.focus('menu');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="leftbox">
+        <div class="focusable checked" data-id="1">Item 1</div>
+        <div class="focusable" data-id="2">Item 2</div>
+        <div class="focusable" data-id="3">Item 3</div>
+        <div class="focusable" data-id="4">Item 4</div>
+        <div class="focusable" data-id="5">Item 5</div>
+        <div class="focusable" data-id="6">Item 6</div>
+        <div class="focusable" data-id="7">Item 7</div>
+        <div class="focusable" data-id="8">Item 8</div>
+        <div class="focusable" data-id="9">Item 9</div>
+        <div class="focusable" data-id="10">Item 10</div>
+      </div>
+      <div class="rightbox">
+        <div id="content1" class="content visible">
+          <h1>Content 1</h1>
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec id mi id erat finibus dapibus sed eget orci. Donec aliquet lacinia congue. Duis pretium est libero, eu bibendum felis tempus eu. Proin pharetra arcu non lacinia molestie. Pellentesque iaculis mollis laoreet. Vivamus aliquam quam eget cursus sagittis. Pellentesque imperdiet suscipit leo, at vulputate turpis ultrices eget. Sed non lectus sit amet nisi rutrum iaculis. Praesent dapibus ipsum eu metus rutrum, in ultricies nunc congue. Donec eget luctus urna. Sed dictum in orci nec aliquam.</p>
+          <p>Nunc in velit eget leo fermentum eleifend. Morbi ut erat vitae eros tempus dictum. Suspendisse quis sapien ut nulla porttitor congue. Mauris tempor, elit ac sagittis sagittis, nibh urna consectetur massa, ut varius nulla mi a erat. Sed porta sed diam et interdum. In hac habitasse platea dictumst. Duis tempor condimentum dolor, venenatis viverra magna commodo nec. Quisque efficitur faucibus ullamcorper. Phasellus a dui non urna facilisis tempor.</p>
+          <p>Suspendisse volutpat tempus consectetur. Vestibulum nec velit sit amet velit porta rutrum. Quisque dignissim vel nunc vel ullamcorper. Nulla aliquam eu orci sit amet ornare. Etiam tincidunt lobortis varius. Aliquam ornare vel eros quis rhoncus. Duis in tortor nunc.</p>
+          <div class="focusable">Button 1</div>
+          <div class="focusable">Button 2</div>
+        </div>
+        <div id="content2" class="content">
+          <h1>Content 2</h1>
+          <p>Curabitur ac felis vel ex porta feugiat. Quisque nec congue quam. Duis consectetur, risus commodo tristique bibendum, purus sem sagittis tortor, et pharetra eros erat quis nibh. Proin eget ex nulla. Phasellus ac massa libero. Pellentesque id eros massa. Cras suscipit vehicula turpis et laoreet. Aenean eu pretium mi, vitae posuere nisi. Morbi eleifend luctus mauris suscipit finibus. Praesent sit amet erat luctus, maximus sem et, condimentum velit. Quisque mollis ipsum vel risus scelerisque tincidunt.</p>
+          <p>Fusce congue et ex in mattis. Curabitur quis metus metus. Aenean suscipit blandit nunc, eu malesuada enim rhoncus condimentum. Proin tempor nibh tristique quam lacinia placerat. Nullam ornare nisl sapien, sit amet aliquam est convallis quis. Praesent at enim lectus. Integer aliquam, risus vitae maximus gravida, nisi diam ultricies felis, eu sodales turpis nunc eu quam. Donec id nunc dolor. Proin lobortis facilisis elit at tristique.</p>
+          <div class="focusable">Button 3</div>
+          <div class="focusable">Button 4</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

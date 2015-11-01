@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>jquery-SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="css/style_1.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../jquery.SpatialNavigation.js"></script>
+    <script>
+      $(function() {
+        var SN = $.SpatialNavigation({
+          id: 'main',
+          selector: '.focusable'
+        });
+
+        SN.makeFocusable();
+        SN.focus();
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="leftbox">
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="nonfocusable"></div>
+      </div>
+      <div class="rightbox">
+        <div id="main" class="focusable"></div>
+        <div class="bottombox">
+          <div class="focusable"></div>
+          <!--
+            You can use "data-sn-{up|down|left|right}" attributes to specify the
+            next element you want.
+
+            Please use jQuery selector string as its value. If the value is
+            omitted, you'll jump to nowhere.
+          -->
+          <div class="focusable" data-sn-down="#target">Press DOWN here.</div>
+          <div class="focusable"></div><br>
+          <div class="focusable" id="target">you'll jump to here.</div>
+          <div class="focusable"></div>
+          <div class="focusable"></div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

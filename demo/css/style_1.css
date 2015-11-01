@@ -1,0 +1,65 @@
+#container {
+  background-color: #eee;
+  width: 825px;
+  height: 600px;
+  margin: 0 auto;
+  border: 1px solid black;
+}
+
+.leftbox {
+  float: left;
+}
+
+.rightbox {
+  float: right;
+}
+
+.bottombox {
+  font-size: 0px;
+}
+
+.leftbox .focusable, .bottombox .focusable {
+  background-color: blue;
+  width: 200px;
+  height: 114px;
+  margin: 5px;
+
+  color: white;
+  text-align: center;
+  line-height: 114px;
+  vertical-align: top;
+  font-size: 1rem;
+}
+
+.leftbox .nonfocusable {
+  background-color: #bbb;
+  width: 200px;
+  height: 114px;
+  margin: 5px;
+}
+
+.bottombox .focusable {
+  display: inline-block;
+  margin-left: 0px;
+  margin-bottom: 0px;
+}
+
+#main {
+  background-color: green;
+  width: 610px;
+  height: 352px;
+  margin: 5px 0 0 0;
+}
+
+.focusable {
+  outline: 0;
+}
+
+.focusable:focus {
+  opacity: 0.5;
+}
+
+#sidebox {
+  width: 825px;
+  margin: 2em auto 0 auto;
+}

@@ -1,0 +1,159 @@
+body {
+  margin: 0;
+  padding: 0;
+  font-size: 24px;
+}
+
+.hide {
+  display: none !important;
+}
+
+.active {
+  position: relative;
+  left: 3px;
+  top: 3px;
+}
+
+.container {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+
+.focusable {
+  outline: 0;
+  cursor: default;
+}
+
+#main-container .button {
+  background-color: #ccc;
+  border-radius: 30px;
+  font-size: 40px;
+  width: 60px;
+  height: 60px;
+  display: inline-block;
+  vertical-align: top;
+}
+
+#main-container .button span {
+  margin-top: 10px;
+  display: block;
+  text-align: center;
+}
+
+#main-container .button:hover {
+  background-color: #999;
+}
+
+#main-container .button:focus {
+  background-color: #333;
+  color: white;
+}
+
+#button-function-area {
+  margin-left: 20px;
+  display: inline-block;
+  background-color: red;
+  background-color: #ccc;
+  border-radius: 30px;
+}
+
+#upperbox {
+  padding: 40px;
+}
+
+#middlebox {
+  position: relative;
+  background-color: #ccc;
+  height: 400px;
+  margin-top: 40px;
+  overflow: hidden;
+}
+
+#lowerbox {
+  padding-left: 40px;
+}
+
+.icon {
+  box-sizing: border-box;
+  background-color: orange;
+  width: 160px;
+  height: 160px;
+  display: inline-block;
+  border-radius: 50%;
+  margin: 20px;
+  vertical-align: top;
+  text-align: center;
+  font-size: 100px;
+  line-height: 160px;
+}
+
+.icon:focus {
+  border: 5px solid white;
+  line-height: 150px;
+}
+
+#settings-container {
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#settings-dialog {
+  box-sizing: border-box;
+  width: 640px;
+  height: 450px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
+}
+
+#settings-dialog h1 {
+  margin: 0;
+  padding-bottom: 5px;
+  border-bottom: 1px solid black;
+}
+
+#settings-dialog footer {
+  text-align: center;
+}
+
+#settings-dialog .button {
+  box-sizing: border-box;
+  display: inline-block;
+  background-color: #ccc;
+  color: white;
+  padding: 7px 15px;
+  border-radius: 24px;
+  height: 48px;
+  margin: 0 15px;
+}
+
+#settings-dialog .button:focus {
+  background-color: blue;
+}
+
+#option-area {
+  margin: 1em;
+}
+
+#option-area .focusable {
+  border: 2px solid white;
+  padding: 5px 10px;
+}
+
+#option-area .focusable:focus {
+  border: 2px solid red;
+}
+
+#option-area .fa {
+  width: 1.4em;
+  text-align: center;
+}
+
+#option-area .fa-check {
+  color: blue;
+}

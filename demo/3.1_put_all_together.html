@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>jquery-SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style_3.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+      $(function() {
+        // Retrieve the SpatialNavigation singleton object.
+        var SN = $.SpatialNavigation();
+
+        // Add the first section "upperbox".
+        SN.add({
+          id: 'upperbox',
+          selector: '#upperbox .focusable',
+
+          // Force to focus the "#button-settings" when entering this section.
+          defaultElement: '#button-settings',
+          enterToDefaultElement: true
+        });
+
+        // Add the second section "middlebox".
+        SN.add({
+          id: 'middlebox',
+          selector: '#middlebox .focusable',
+
+          // Focus the last focused element first then entering this section.
+          enterToLastFocused: true
+        });
+
+        // Add the third section "settings-dialog".
+        //
+        // Any invisible elements can't be navigated at all so we can add this
+        // section at anytime and don't need to concern their visibility.
+        SN.add({
+          id: 'settings-dialog',
+          selector: '#settings-dialog .focusable',
+
+          // Since it's a standalone dialog, we restrict its navigation to
+          // itself so the focus won't be moved to another section.
+          restrict: 'self-only',
+
+          // Note that we don't set "enterToDefaultElement" in this section.
+          // That's because it's impossible to enter this section from another
+          // one by arrow keys. This default element will only affect the
+          // "focus('settings-dialog')" API call.
+          defaultElement: '#button-cancel'
+        });
+
+        // Implement the interaction when "hovering" the "button-function" icon.
+        // Listening to "focus" event as well makes this interaction support
+        // mouse operations, too.
+        $('#upperbox .focusable').on('sn:focused focus', function() {
+          if (this.id == 'button-function') {
+            $('#button-function-area .sub-button').removeClass('hide');
+          }
+        });
+
+        // Restore the interaction of the "button-function" icon.
+        // We use native "focus" event to observe the focus change event
+        // triggered from mouse operations.
+        window.addEventListener('focus', function(evt) {
+          if (!$(evt.target).parents('#button-function-area').length) {
+            $('#button-function-area .sub-button').addClass('hide');
+          }
+        }, true); // The "focus" event doesn't bubble so we can only listen it
+                  // in capturing phase.
+
+        // Implement "ensureVisible" feature.
+        $('#middlebox .focusable').on('sn:willfocus', function() {
+          SN.pause();
+
+          $(this).ensureVisible(function() {
+            SN.focus(this);
+            SN.resume();
+          });
+
+          return false;
+        });
+
+        $('.focusable')
+          .on('sn:enter-down', function() {
+            // Add "clicking" style.
+            $(this).addClass('active');
+          })
+          .on('sn:enter-up', function() {
+            var id = this.id;
+            var $this = $(this);
+
+            // Remove "clicking" style.
+            $this.removeClass('active');
+
+            // Do related actions according to the id of element.
+            if (id.substr(0, 9) == 'settings-') {
+              $this.find('i').toggleClass('fa-check');
+            } else {
+              switch(id) {
+                case 'button-settings':
+                  // Show the settings dialog
+                  $('#settings-container').removeClass('hide');
+
+                  // Move focus to section "settings-dialog"
+                  SN.focus('settings-dialog');
+                  break;
+                case 'button-save':
+                case 'button-cancel':
+                  // Hide the settings dialog
+                  $('#settings-container').addClass('hide');
+
+                  // Move focus back to section "upperbox".
+                  SN.focus('upperbox');
+                  break;
+              }
+            }
+
+            // For testing only.
+            console.log(id);
+          });
+
+        // Set everything with "tabindex=-1".
+        SN.makeFocusable();
+
+        // Focus section "middlebox" by default.
+        SN.focus('middlebox');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="main-container" class="container">
+      <div id="upperbox">
+        <div id="button-settings" class="button focusable"><span class="fa fa-cog"></span></div>
+        <div id="button-function-area">
+          <div id="button-function" class="button focusable"><span class="fa fa-wrench"></span></div>
+          <div id="button-function-1" class="button focusable sub-button hide"><span class="fa fa-thumb-tack"></span></div>
+          <div id="button-function-2" data-sn-right="" class="button focusable sub-button hide"><span class="fa fa-star"></span></div>
+        </div>
+      </div>
+      <div id="middlebox">
+        <div class="icon focusable" id="firefox"><i class="fa fa-firefox"></i></div>
+        <div class="icon focusable" id="chrome"><i class="fa fa-chrome"></i></div>
+        <div class="icon focusable" id="safari"><i class="fa fa-safari"></i></div>
+        <div class="icon focusable" id="opera"><i class="fa fa-opera"></i></div>
+        <div class="icon focusable" id="internet-explorer"><i class="fa fa-internet-explorer"></i></div>
+        <div class="icon focusable" id="apple"><i class="fa fa-apple"></i></div>
+        <div class="icon focusable" id="linux"><i class="fa fa-linux"></i></div>
+        <div class="icon focusable" id="windows"><i class="fa fa-windows"></i></div>
+        <div class="icon focusable" id="youtube"><i class="fa fa-youtube"></i></div>
+        <div class="icon focusable" id="vimeo"><i class="fa fa-vimeo"></i></div>
+        <div class="icon focusable" id="google-plus"><i class="fa fa-google-plus-square"></i></div>
+        <div class="icon focusable" id="facebook"><i class="fa fa-facebook-official"></i></div>
+        <div class="icon focusable" id="twitter"><i class="fa fa-twitter"></i></div>
+        <div class="icon focusable" id="skype"><i class="fa fa-skype"></i></div>
+        <div class="icon focusable" id="dropbox"><i class="fa fa-dropbox"></i></div>
+        <div class="icon focusable" id="android"><i class="fa fa-android"></i></div>
+        <div class="icon focusable" id="html5"><i class="fa fa-html5"></i></div>
+        <div class="icon focusable" id="css3"><i class="fa fa-css3"></i></div>
+        <div class="icon focusable" id="github"><i class="fa fa-github"></i></div>
+        <div class="icon focusable" id="bitbucket"><i class="fa fa-bitbucket"></i></div>
+        <div class="icon focusable" id="jsfiddle"><i class="fa fa-jsfiddle"></i></div>
+      </div>
+      <div id="lowerbox">
+        <p><i class="fa fa-asterisk"></i> Only "settings" icon has the functionality.</p>
+      </div>
+    </div>
+    <div id="settings-container" class="container hide">
+      <div id="settings-dialog">
+        <h1>Settings</h1>
+        <div id="option-area">
+          <div id="settings-1" class="focusable"><i class="fa fa-check"></i> Lorem ipsum dolor sit amet</div>
+          <div id="settings-2" class="focusable"><i class="fa"></i> Consectetur adipiscing elit</div>
+          <div id="settings-3" class="focusable"><i class="fa fa-check"></i> Aliquam mauris ipsum, semper </div>
+          <div id="settings-4" class="focusable"><i class="fa fa-check"></i> Mauris libero turpis</div>
+          <div id="settings-5" class="focusable"><i class="fa"></i> Sed nunc purus, facilisis et risus</div>
+        </div>
+        <footer>
+          <div id="button-save" class="button focusable">Save</div>
+          <div id="button-cancel" class="button focusable">Cancel</div>
+        </footer>
+      </div>
+    </div>
+  </body>
+</html>

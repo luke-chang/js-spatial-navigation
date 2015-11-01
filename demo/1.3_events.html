@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>jquery-SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="css/style_1.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../jquery.SpatialNavigation.js"></script>
+    <script>
+      $(function() {
+        var SN = $.SpatialNavigation({
+          id: 'main',
+          selector: '.focusable'
+        });
+
+        // All valid events.
+        var validEvents = [
+          'sn:willunfocus',
+          'sn:unfocused',
+          'sn:willfocus',
+          'sn:focused',
+          'sn:enter-down',
+          'sn:enter-up',
+          'sn:navigatefailed'
+        ];
+
+        $('.focusable').on(validEvents.join(' '), function(evt) {
+          console.log(evt.type + ': ' + evt.target.id);
+        });
+
+        SN.makeFocusable();
+        SN.focus();
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="leftbox">
+        <div id="elem1" class="focusable"></div>
+        <div id="elem2" class="focusable"></div>
+        <div id="elem3" class="focusable"></div>
+        <div id="elem4" class="focusable"></div>
+        <div id="elem5" class="nonfocusable"></div>
+      </div>
+      <div class="rightbox">
+        <div id="main" class="focusable"></div>
+        <div class="bottombox">
+          <div id="elem6" class="focusable"></div>
+          <div id="elem7" class="focusable"></div>
+          <div id="elem8" class="focusable"></div><br>
+          <div id="elem9" class="focusable"></div>
+          <div id="elem10" class="focusable"></div>
+          <div id="elem11" class="focusable"></div>
+        </div>
+      </div>
+    </div>
+    <div id="sidebox">
+      Note: Please open the console panel for logs.
+    </div>
+  </body>
+</html>

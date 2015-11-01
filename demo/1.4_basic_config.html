@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>jquery-SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="css/style_1.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../jquery.SpatialNavigation.js"></script>
+    <script>
+      $(function() {
+        // We can add some configurations when initializing.
+        var SN = $.SpatialNavigation({
+          id: 'main',
+          selector: '.focusable',
+
+          // Limit the navigating direction to vertical and horizontal only.
+          // Targets in oblique (left-top, right-top, left-bottom, and
+          // right-bottom) directions are always ignored.
+          straightOnly: true,
+
+          // This threshold is used to determine whether an element is
+          // considered in straight (vertical or horizontal) directions. Valid
+          // number is between 0 to 1.0. Setting it to 0.3 means an element is
+          // counted in the straight directions if it overlaps the straight area
+          // at least 0.3x of width of the area.
+          straightOverlapThreshold: 0.5,
+
+          // The previous focused element has high priority to be chosen as the
+          // next candidate.
+          rememberSource: true
+        });
+
+        SN.makeFocusable();
+        SN.focus();
+
+        $('input[type="checkbox"]')
+          .prop('checked', true)
+          .change(function() {
+            var config = {};
+            config[$(this).val()] = $(this).prop('checked');
+
+            // And we can change the configurations of the specified section
+            // anytime.
+            // Note: It section id is omitted, you'll be able to change the
+            // global configurations.
+            SN.set('main', config);
+          });
+
+        // Listen to "sn:enter" event for the ENTER key event.
+        $('#sidebox .focusable').on('sn:enter-down', function() {
+          $(this).find('input').click();
+          return false;
+        });
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div class="leftbox">
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="focusable"></div>
+        <div class="nonfocusable"></div>
+      </div>
+      <div class="rightbox">
+        <div id="main" class="focusable"></div>
+        <div class="bottombox">
+          <div class="focusable"></div>
+          <div class="focusable"></div>
+          <div class="focusable"></div><br>
+          <div class="focusable"></div>
+          <div class="focusable"></div>
+          <div class="focusable"></div>
+        </div>
+      </div>
+    </div>
+    <div id="sidebox">
+      Config:
+      <span class="focusable">
+        <label><input type="checkbox" name="config" value="straightOnly"> straightOnly</label>
+      </span>
+      <span class="focusable">
+        <label><input type="checkbox" name="config" value="rememberSource"> rememberSource</label>
+      </span>
+    </div>
+  </body>
+</html>
