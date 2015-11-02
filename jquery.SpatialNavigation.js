@@ -23,6 +23,8 @@
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
+    leaveFor: null, // {left: <selector>, right: <selector>,
+                    //  up: <selector>, down: <selector>}
     navigableFilter: null
   };
 
@@ -460,18 +462,20 @@
 
     _duringFocusChange = true;
 
-    var currentFocusedElement = document.activeElement;
+    var currentFocusedElement = $(':focus').get(0);
 
-    var unfocusProperties = {
-      next: elem,
-      nextSection: sectionId
-    };
-    if (!fireEvent(currentFocusedElement, 'willunfocus', unfocusProperties)) {
-      _duringFocusChange = false;
-      return false;
+    if (currentFocusedElement) {
+      var unfocusProperties = {
+        next: elem,
+        nextSection: sectionId
+      };
+      if (!fireEvent(currentFocusedElement, 'willunfocus', unfocusProperties)) {
+        _duringFocusChange = false;
+        return false;
+      }
+      currentFocusedElement.blur();
+      fireEvent(currentFocusedElement, 'unfocused', unfocusProperties);
     }
-    currentFocusedElement.blur();
-    fireEvent(currentFocusedElement, 'unfocused', unfocusProperties);
 
     var focusProperties = {
       from: currentFocusedElement,
@@ -554,6 +558,51 @@
     return !!next;
   }
 
+  function focusPredefinedSelector(selector) {
+    if (selector.charAt(0) == '@') {
+      if (selector.length == 1) {
+        focusSection();
+        return true;
+      } else {
+        var sectionId = selector.substr(1);
+        if (_sections[sectionId]) {
+          focusSection(sectionId);
+          return true;
+        }
+      }
+    } else {
+      var next = $(selector).get(0);
+      if (next) {
+        var nextSectionId = getSectionId(next);
+        if (isNavigable(next, nextSectionId)) {
+          focusElement(next, nextSectionId);
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function fireNavigatefailed(elem, direction) {
+    fireEvent(elem, 'navigatefailed', {
+      direction: direction
+    });
+  }
+
+  function gotoLeaveFor(sectionId, direction) {
+    if (_sections[sectionId].leaveFor &&
+        _sections[sectionId].leaveFor[direction] !== undefined) {
+      var predefinedSelector = _sections[sectionId].leaveFor[direction];
+
+      if (predefinedSelector === '') {
+        return null;
+      } else if (focusPredefinedSelector(predefinedSelector)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   function onKeyDown(evt) {
     var next, nextSectionId, currentFocusedElement;
 
@@ -584,40 +633,23 @@
         currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
       } else {
         focusSection();
-        return;
+        return false;
       }
     }
 
     var currentSectionId = getSectionId(currentFocusedElement);
     if (!currentSectionId) {
       focusSection();
-      return;
+      return false;
     }
 
     var predefinedSelector = $(currentFocusedElement).data('sn-' + direction);
     if (predefinedSelector !== undefined) {
-      if (predefinedSelector !== '') {
-        if (predefinedSelector.charAt(0) == '@') {
-          nextSectionId = predefinedSelector.substr(1);
-          if (_sections[nextSectionId]) {
-            focusSection(nextSectionId);
-            return;
-          }
-        } else {
-          next = $(predefinedSelector).get(0);
-          if (next) {
-            nextSectionId = getSectionId(next);
-            if (isNavigable(next, nextSectionId)) {
-              focusElement(next, nextSectionId);
-              return;
-            }
-          }
-        }
+      if (predefinedSelector === '' ||
+          !focusPredefinedSelector(predefinedSelector)) {
+        fireNavigatefailed(currentFocusedElement, direction);
       }
-      fireEvent(currentFocusedElement, 'navigatefailed', {
-        direction: direction
-      });
-      return;
+      return false;
     }
 
     var $sections = {};
@@ -668,8 +700,15 @@
       nextSectionId = getSectionId(next);
 
       if (currentSectionId != nextSectionId) {
-        var nextSection = _sections[nextSectionId];
+        var result = gotoLeaveFor(currentSectionId, direction);
+        if (result) {
+          return false;
+        } else if (result === null) {
+          fireNavigatefailed(currentFocusedElement, direction);
+          return false;
+        }
 
+        var nextSection = _sections[nextSectionId];
         if (nextSection.enterToLastFocused && nextSection.lastFocusedElement &&
             isNavigable(nextSection.lastFocusedElement, nextSectionId)) {
           next = nextSection.lastFocusedElement;
@@ -681,10 +720,8 @@
       }
 
       focusElement(next, nextSectionId);
-    } else {
-      fireEvent(currentFocusedElement, 'navigatefailed', {
-        direction: direction
-      });
+    } else if (!gotoLeaveFor(currentSectionId, direction)) {
+      fireNavigatefailed(currentFocusedElement, direction);
     }
 
     return false;
@@ -703,7 +740,8 @@
   }
 
   function onFocus(evt) {
-    if (_sectionCount && !_duringFocusChange) {
+    if (evt.target !== window && evt.target !== document &&
+        _sectionCount && !_duringFocusChange) {
       focusChanged(evt.target);
     }
   }
