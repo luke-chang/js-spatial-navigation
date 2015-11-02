@@ -18,6 +18,8 @@
     straightOverlapThreshold: 0.5,
     rememberSource: false,
     enterToLastFocused: false,
+    enterToDefaultElement: false,
+    defaultElement: '',
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
@@ -500,7 +502,7 @@
 
   function focusSection(sectionId) {
     var next, nextSectionId, range;
-    var elemOrder = ['defaultFocusedElement', 'lastFocusedElement'];
+    var elemOrder = ['defaultElement', 'lastFocusedElement'];
 
     if (sectionId) {
       if (_sections[sectionId]) {
@@ -667,9 +669,14 @@
 
       if (currentSectionId != nextSectionId) {
         var nextSection = _sections[nextSectionId];
+
         if (nextSection.enterToLastFocused && nextSection.lastFocusedElement &&
             isNavigable(nextSection.lastFocusedElement, nextSectionId)) {
           next = nextSection.lastFocusedElement;
+        } else if (nextSection.enterToDefaultElement &&
+                   nextSection.defaultElement &&
+                   isNavigable(nextSection.defaultElement, nextSectionId)) {
+          next = $(nextSection.defaultElement).get(0);
         }
       }
 
