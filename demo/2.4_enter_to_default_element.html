@@ -18,16 +18,16 @@
           id: 'menu',
           selector: '.leftbox .focusable',
 
-          // Setting this to true means the default element will be focused
-          // first whenever the focus jumps into this section from another
-          // section.
-          enterToDefaultElement: true,
+          // Setting this to "default-element" means the default element will be
+          // focused first whenever the focus jumps into this section from
+          // another section.
+          enterTo: 'default-element',
 
           // Specify the default element.
-          // It will be focused first when calling "focus(<sectionId>)" method
-          // as well no matter what value "enterToDefaultElement" is set.
-          // The valid value can be a jQuery selector string, jQuery object or
-          // standard DOM element.
+          // It will be focused as well when calling "focus(<sectionId>)" method
+          // even if "enterTo" is not set to "default-element". The valid value
+          // can be a jQuery selector string, jQuery object or standard DOM
+          // element.
           defaultElement: '.leftbox .focusable:first'
         });
 

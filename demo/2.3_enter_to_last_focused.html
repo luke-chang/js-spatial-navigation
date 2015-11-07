@@ -18,10 +18,10 @@
           id: 'menu',
           selector: '.leftbox .focusable',
 
-          // Setting this to true means the last focused element in this section
-          // will be focused first whenever the focus jumps into this section
-          // from another section.
-          enterToLastFocused: true
+          // Setting this to "last-focused" means the last focused element in
+          // this section will be focused first whenever the focus jumps into
+          // this section from another section.
+          enterTo: 'last-focused'
         });
 
         SN.add({

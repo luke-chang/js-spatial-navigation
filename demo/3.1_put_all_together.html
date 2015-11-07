@@ -23,7 +23,7 @@
 
           // Force to focus the "#button-settings" when entering this section.
           defaultElement: '#button-settings',
-          enterToDefaultElement: true
+          enterTo: 'default-element'
         });
 
         // Add the second section "middlebox".
@@ -32,7 +32,7 @@
           selector: '#middlebox .focusable',
 
           // Focus the last focused element first then entering this section.
-          enterToLastFocused: true
+          enterTo: 'last-focused'
         });
 
         // Add the third section "settings-dialog".
@@ -47,9 +47,9 @@
           // itself so the focus won't be moved to another section.
           restrict: 'self-only',
 
-          // Note that we don't set "enterToDefaultElement" in this section.
-          // That's because it's impossible to enter this section from another
-          // one by arrow keys. This default element will only affect the
+          // Note that we don't set "enterTo" to "default-element" in this
+          // section because it's impossible to enter this section from the
+          // others by arrow keys. This default element will only affect the
           // "focus('settings-dialog')" API call.
           defaultElement: '#button-cancel'
         });

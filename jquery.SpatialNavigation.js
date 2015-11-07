@@ -17,14 +17,13 @@
     straightOnly: false,
     straightOverlapThreshold: 0.5,
     rememberSource: false,
-    enterToLastFocused: false,
-    enterToDefaultElement: false,
     defaultElement: '',
+    enterTo: '', // '', 'last-focused', 'default-element'
+    leaveFor: null, // {left: <selector>, right: <selector>,
+                    //  up: <selector>, down: <selector>}
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
-    leaveFor: null, // {left: <selector>, right: <selector>,
-                    //  up: <selector>, down: <selector>}
     navigableFilter: null
   };
 
@@ -709,10 +708,11 @@
         }
 
         var nextSection = _sections[nextSectionId];
-        if (nextSection.enterToLastFocused && nextSection.lastFocusedElement &&
+        if (nextSection.enterTo == 'last-focused' &&
+            nextSection.lastFocusedElement &&
             isNavigable(nextSection.lastFocusedElement, nextSectionId)) {
           next = nextSection.lastFocusedElement;
-        } else if (nextSection.enterToDefaultElement &&
+        } else if (nextSection.enterTo == 'default-element' &&
                    nextSection.defaultElement &&
                    isNavigable(nextSection.defaultElement, nextSectionId)) {
           next = $(nextSection.defaultElement).get(0);
