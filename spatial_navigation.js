@@ -1034,11 +1034,13 @@
         var tabIndexIgnoreList = section.tabIndexIgnoreList !== undefined ?
           section.tabIndexIgnoreList : GlobalConfig.tabIndexIgnoreList;
         var candidates = parseSelector(section.selector);
-        for (var i = 0; i < candidates.length; i++) {
-          if (!elementMatchesSelector.call(candidates[i], tabIndexIgnoreList)) {
-            candidates[i].setAttribute('tabindex', '-1');
+        candidates.forEach(function(elem) {
+          if (!elementMatchesSelector.call(elem, tabIndexIgnoreList)) {
+            if (!elem.getAttribute('tabindex')) {
+              elem.setAttribute('tabindex', '-1');
+            }
           }
-        }
+        });
       };
 
       if (sectionId) {
