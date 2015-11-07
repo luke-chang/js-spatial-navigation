@@ -1,5 +1,5 @@
 /*
- * An implementation of Spatial Navigation for jQuery.
+ * A javascript-based implementation of Spatial Navigation.
  *
  * Copyright (c) 2015 Luke Chang.
  * https://github.com/luke-chang/jquery-spatialNavigation

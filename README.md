@@ -1,7 +1,7 @@
-jquery-spatialNavigation
-========================
+JavaScript SpatialNavigation
+============================
 
-An implementation of Spatial Navigation for jQuery.
+A javascript-based implementation of Spatial Navigation.
 
 
 License
