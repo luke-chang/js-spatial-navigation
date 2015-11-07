@@ -12,15 +12,22 @@
   /************************/
   /* Global Configuration */
   /************************/
+  // Note: an <extSelector> can be one of following types:
+  // - a valid selector string for "querySelector" or jQuery (if it exists)
+  // - a standard DOM element
+  // - a jQuery object
+  // - a string "@<sectionId>" to indicate the specified section
+  // - a string "@" to indicate the default section
   var GlobalConfig = {
-    selector: '.focusable',
+    selector: '',           // can be a valid selector string, a set of DOM
+                            // elements or an jQuery object.
     straightOnly: false,
     straightOverlapThreshold: 0.5,
     rememberSource: false,
-    defaultElement: '',
-    enterTo: '', // '', 'last-focused', 'default-element'
-    leaveFor: null, // {left: <selector>, right: <selector>,
-                    //  up: <selector>, down: <selector>}
+    defaultElement: '',     // <extSelector>
+    enterTo: '',            // '', 'last-focused', 'default-element'
+    leaveFor: null,         // {left: <extSelector>, right: <extSelector>,
+                            //  up: <extSelector>, down: <extSelector>}
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
@@ -45,10 +52,12 @@
   };
 
   var EVENT_PREFIX = 'sn:';
+  var ID_POOL_PREFIX = 'section-';
 
   /********************/
   /* Private Variable */
   /********************/
+  var _idPool = 0;
   var _ready = false;
   var _pause = false;
   var _sections = {};
@@ -406,23 +415,82 @@
     return dest;
   }
 
-  /***************************/
-  /* jQuery Private Function */
-  /***************************/
+  /********************/
+  /* Private Function */
+  /********************/
+  function generateId() {
+    var id;
+    while(true) {
+      id = ID_POOL_PREFIX + String(++_idPool);
+      if (!_sections[id]) {
+        break;
+      }
+    }
+    return id;
+  }
+
+  function parseSelector(selector) {
+    var result = [];
+    if ($) {
+      result = $(selector).get();
+    } else if (typeof selector === 'string') {
+      result = [].slice.call(document.querySelectorAll(selector));
+    } else if (typeof selector === 'object' && selector.length) {
+      result = [].slice.call(selector);
+    }
+    return result;
+  }
+
+  function getCurrentFocusedElement() {
+    var activeElement = document.activeElement;
+    if (activeElement != document && activeElement !== document.body) {
+      return activeElement;
+    }
+  }
+
+  function extend(out) {
+    out = out || {};
+    for (var i = 1; i < arguments.length; i++) {
+      if (!arguments[i]) {
+        continue;
+      }
+      for (var key in arguments[i]) {
+        if (arguments[i].hasOwnProperty(key) &&
+            arguments[i][key] !== undefined) {
+          out[key] = arguments[i][key];
+        }
+      }
+    }
+    return out;
+  }
+
+  function exclude(elemList, excludedElem) {
+    if (!Array.isArray(excludedElem)) {
+      excludedElem = [excludedElem];
+    }
+    for (var i = 0, index; i < excludedElem.length; i++) {
+      index = elemList.indexOf(excludedElem[i]);
+      if (index >= 0) {
+        elemList.splice(index, 1);
+      }
+    }
+    return elemList;
+  }
+
   function isNavigable(elem, sectionId) {
     if (! elem) {
       return false;
     }
-    var $elem = $(elem);
-    if (!$elem.is(':visible') || $elem.prop('disabled')) {
+    if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) || elem.disabled) {
       return false;
     }
-    if (sectionId && $.isFunction(_sections[sectionId].navigableFilter)) {
-      if (_sections[sectionId].navigableFilter(elem) === false) {
+    if (sectionId &&
+        typeof _sections[sectionId].navigableFilter === 'function') {
+      if (_sections[sectionId].navigableFilter(elem, sectionId) === false) {
         return false;
       }
-    } else if ($.isFunction(GlobalConfig.navigableFilter) &&
-               GlobalConfig.navigableFilter(elem) === false) {
+    } else if (typeof GlobalConfig.navigableFilter === 'function' &&
+               GlobalConfig.navigableFilter(elem, sectionId) === false) {
       return false;
     }
     return true;
@@ -430,28 +498,23 @@
 
   function getSectionId(elem) {
     for (var id in _sections) {
-      var $section = $(_sections[id].selector);
-      if ($section.filter(elem).length) {
+      var sectionElements = parseSelector(_sections[id].selector);
+      if (sectionElements.indexOf(elem) >= 0) {
         return id;
       }
     }
-    return undefined;
   }
 
-  function getSectionNavigableElements$(sectionId) {
-    return $(_sections[sectionId].selector).filter(function() {
-      return isNavigable($(this).get(0), sectionId);
+  function getSectionNavigableElements(sectionId) {
+    return parseSelector(_sections[sectionId].selector).filter(function(elem) {
+      return isNavigable(elem, sectionId);
     });
   }
 
-  function fireEvent(selector, type, details) {
-    var evt = $.Event(EVENT_PREFIX + type);
-    $.extend(evt, details);
-    $(selector).trigger(evt);
-    if (evt.isDefaultPrevented()) {
-      return false;
-    }
-    return true;
+  function fireEvent(elem, type, details) {
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent(EVENT_PREFIX + type, true, true, details);
+    return elem.dispatchEvent(evt);
   }
 
   function focusElement(elem, sectionId) {
@@ -459,9 +522,28 @@
       return false;
     }
 
+    var currentFocusedElement = getCurrentFocusedElement();
+
+    var silentFocus = function() {
+      if (currentFocusedElement) {
+        currentFocusedElement.blur();
+      }
+      elem.focus();
+      focusChanged(elem, sectionId);
+    };
+
+    if (_duringFocusChange) {
+      silentFocus();
+      return true;
+    }
+
     _duringFocusChange = true;
 
-    var currentFocusedElement = $(':focus').get(0);
+    if (_pause) {
+      silentFocus();
+      _duringFocusChange = false;
+      return true;
+    }
 
     if (currentFocusedElement) {
       var unfocusProperties = {
@@ -503,83 +585,83 @@
     }
   }
 
+  function focusExtendedSelector(selector) {
+    if (selector.charAt(0) == '@') {
+      if (selector.length == 1) {
+        return focusSection();
+      } else {
+        var sectionId = selector.substr(1);
+        return focusSection(sectionId);
+      }
+    } else {
+      var next = parseSelector(selector)[0];
+      if (next) {
+        var nextSectionId = getSectionId(next);
+        if (isNavigable(next, nextSectionId)) {
+          return focusElement(next, nextSectionId);
+        }
+      }
+    }
+    return false;
+  }
+
   function focusSection(sectionId) {
-    var next, nextSectionId, range;
+    var next, nextSectionId;
     var elemOrder = ['defaultElement', 'lastFocusedElement'];
+
+    var range = [];
+    var addRange = function(id) {
+      if (id && range.indexOf(id) < 0 && _sections[id]) {
+        range.push(id);
+      }
+    };
 
     if (sectionId) {
       if (_sections[sectionId]) {
-        range = [sectionId];
-      } else {
-        throw new Error('Section "' + sectionId + '" doesn\'t exist!');
+        addRange(sectionId);
       }
-    } else if (_lastSectionId == _defaultSectionId) {
-      range = [_defaultSectionId];
     } else {
-      range = [_lastSectionId, _defaultSectionId];
+      addRange(_defaultSectionId);
+      addRange(_lastSectionId);
+      addRange(Object.keys(_sections)[0]);
     }
 
-    $.each(range, function(i, id) {
-      if (!id || !_sections[id]) {
-        return;
-      }
+    for (var i = 0; i < range.length && !next; i++) {
+      var id = range[i];
 
-      $.each(elemOrder, function(j, item) {
-        var elem = _sections[id][item];
+      for (var j = 0; j < elemOrder.length && !next; j++) {
+        var elem = _sections[id][elemOrder[j]];
 
-        if (elem instanceof $) {
+        if ($ && elem instanceof $) {
           elem = elem.get(0);
-        } else if ($.type(elem) === 'string') {
-          elem = $(elem).get(0);
+        } else if (typeof elem === 'string') {
+          if (focusExtendedSelector(elem)) {
+            return true;
+          } else {
+            continue;
+          }
         }
 
         if (elem && isNavigable(elem, id)) {
           next = elem;
           nextSectionId = id;
-          return false;
-        }
-      });
-
-      if (next) {
-        return false;
-      }
-
-      var $section = getSectionNavigableElements$(id);
-      if ($section.length) {
-        next = $section.get(0);
-        nextSectionId = id;
-        return false;
-      }
-    });
-
-    focusElement(next, nextSectionId);
-
-    return !!next;
-  }
-
-  function focusPredefinedSelector(selector) {
-    if (selector.charAt(0) == '@') {
-      if (selector.length == 1) {
-        focusSection();
-        return true;
-      } else {
-        var sectionId = selector.substr(1);
-        if (_sections[sectionId]) {
-          focusSection(sectionId);
-          return true;
         }
       }
-    } else {
-      var next = $(selector).get(0);
-      if (next) {
-        var nextSectionId = getSectionId(next);
-        if (isNavigable(next, nextSectionId)) {
-          focusElement(next, nextSectionId);
-          return true;
+
+      if (!next) {
+        var navigableElements = getSectionNavigableElements(id);
+        if (navigableElements.length) {
+          next = navigableElements[0];
+          nextSectionId = id;
         }
       }
     }
-    return false;
+
+    if (!next) {
+      return false;
+    }
+
+    return focusElement(next, nextSectionId);
   }
 
   function fireNavigatefailed(elem, direction) {
@@ -591,40 +673,54 @@
   function gotoLeaveFor(sectionId, direction) {
     if (_sections[sectionId].leaveFor &&
         _sections[sectionId].leaveFor[direction] !== undefined) {
-      var predefinedSelector = _sections[sectionId].leaveFor[direction];
+      var next = _sections[sectionId].leaveFor[direction];
 
-      if (predefinedSelector === '') {
-        return null;
-      } else if (focusPredefinedSelector(predefinedSelector)) {
-        return true;
+      if (typeof next === 'string') {
+        if (next === '') {
+          return null;
+        }
+        return focusExtendedSelector(next);
+      }
+
+      if ($ && next instanceof $) {
+        next = next.get(0);
+      }
+
+      var nextSectionId = getSectionId(next);
+      if (isNavigable(next, nextSectionId)) {
+        return focusElement(next, nextSectionId);
       }
     }
     return false;
   }
 
   function onKeyDown(evt) {
+    var preventDefault = function() {
+      evt.preventDefault();
+      evt.stopPropagation();
+      return false;
+    };
+
     var next, nextSectionId, currentFocusedElement;
 
-    if (!_sectionCount) {
+    if (!_sectionCount || _pause) {
       return;
     }
 
     var direction = KEYMAPPING[evt.keyCode];
     if (!direction) {
-      if (!_pause && evt.keyCode == 13) {
-        currentFocusedElement = $(':focus').get(0);
+      if (evt.keyCode == 13) {
+        currentFocusedElement = getCurrentFocusedElement();
         if (currentFocusedElement && getSectionId(currentFocusedElement)) {
-          return fireEvent(currentFocusedElement, 'enter-down');
+          if (!fireEvent(currentFocusedElement, 'enter-down')) {
+            return preventDefault();
+          }
         }
       }
       return;
     }
 
-    if (_pause) {
-      return false;
-    }
-
-    currentFocusedElement = $(':focus').get(0);
+    currentFocusedElement = getCurrentFocusedElement();
 
     if (!currentFocusedElement) {
       if (_lastSectionId && _sections[_lastSectionId] && isNavigable(
@@ -632,43 +728,44 @@
         currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
       } else {
         focusSection();
-        return false;
+        return preventDefault();
       }
     }
 
     var currentSectionId = getSectionId(currentFocusedElement);
     if (!currentSectionId) {
       focusSection();
-      return false;
+      return preventDefault();
     }
 
-    var predefinedSelector = $(currentFocusedElement).data('sn-' + direction);
-    if (predefinedSelector !== undefined) {
-      if (predefinedSelector === '' ||
-          !focusPredefinedSelector(predefinedSelector)) {
+    var extSelector =
+      currentFocusedElement.getAttribute('data-sn-' + direction);
+    if (typeof extSelector === 'string') {
+      if (extSelector === '' ||
+          !focusExtendedSelector(extSelector)) {
         fireNavigatefailed(currentFocusedElement, direction);
       }
-      return false;
+      return preventDefault();
     }
 
-    var $sections = {};
-    var $total;
+    var sectionNavigableElements = {};
+    var allNavigableElements = [];
     for (var id in _sections) {
-      $sections[id] = getSectionNavigableElements$(id);
-      if (!$total) {
-        $total = $sections[id];
-      } else {
-        $total = $total.add($sections[id]);
-      }
+      sectionNavigableElements[id] = getSectionNavigableElements(id);
+      allNavigableElements =
+        allNavigableElements.concat(sectionNavigableElements[id]);
     }
 
-    var config = $.extend({}, GlobalConfig, _sections[currentSectionId]);
+    var config = extend({}, GlobalConfig, _sections[currentSectionId]);
 
     if (config.restrict == 'self-only' || config.restrict == 'self-first') {
+      var currentSectionNavigableElements =
+        sectionNavigableElements[currentSectionId];
+
       next = navigate(
         currentFocusedElement,
         direction,
-        $sections[currentSectionId].not(currentFocusedElement).get(),
+        exclude(currentSectionNavigableElements, currentFocusedElement),
         config
       );
 
@@ -676,7 +773,7 @@
         next = navigate(
           currentFocusedElement,
           direction,
-          $total.not($sections[currentSectionId]).get(),
+          exclude(allNavigableElements, currentSectionNavigableElements),
           config
         );
       }
@@ -684,7 +781,7 @@
       next = navigate(
         currentFocusedElement,
         direction,
-        $total.not(currentFocusedElement).get(),
+        exclude(allNavigableElements, currentFocusedElement),
         config
       );
     }
@@ -701,10 +798,10 @@
       if (currentSectionId != nextSectionId) {
         var result = gotoLeaveFor(currentSectionId, direction);
         if (result) {
-          return false;
+          return preventDefault();
         } else if (result === null) {
           fireNavigatefailed(currentFocusedElement, direction);
-          return false;
+          return preventDefault();
         }
 
         var nextSection = _sections[nextSectionId];
@@ -713,9 +810,16 @@
             isNavigable(nextSection.lastFocusedElement, nextSectionId)) {
           next = nextSection.lastFocusedElement;
         } else if (nextSection.enterTo == 'default-element' &&
-                   nextSection.defaultElement &&
-                   isNavigable(nextSection.defaultElement, nextSectionId)) {
-          next = $(nextSection.defaultElement).get(0);
+                   nextSection.defaultElement) {
+          var defaultElement = nextSection.defaultElement;
+          if (typeof defaultElement === 'string') {
+            defaultElement = parseSelector(defaultElement)[0];
+          } else if ($ && defaultElement instanceof $) {
+            defaultElement = defaultElement.get(0);
+          }
+          if (isNavigable(defaultElement, nextSectionId)) {
+            next = defaultElement;
+          }
         }
       }
 
@@ -724,17 +828,17 @@
       fireNavigatefailed(currentFocusedElement, direction);
     }
 
-    return false;
+    return preventDefault();
   }
 
   function onKeyUp(evt) {
-    if (!_sectionCount) {
-      return;
-    }
-    if (!_pause && evt.keyCode == 13) {
-      var currentFocusedElement = $(':focus').get(0);
+    if (!_pause && _sectionCount && evt.keyCode == 13) {
+      var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
-        return fireEvent(currentFocusedElement, 'enter-up');
+        if (!fireEvent(currentFocusedElement, 'enter-up')) {
+          evt.preventDefault();
+          evt.stopPropagation();
+        }
       }
     }
   }
@@ -746,14 +850,14 @@
     }
   }
 
-  /**************************/
-  /* jQuery Public Function */
-  /**************************/
+  /*******************/
+  /* Public Function */
+  /*******************/
   var SpatialNavigation = {
     init: function() {
       if (!_ready) {
-        $(window).on('keydown', onKeyDown);
-        $(window).on('keyup', onKeyUp);
+        window.addEventListener('keydown', onKeyDown);
+        window.addEventListener('keyup', onKeyUp);
         window.addEventListener('focus', onFocus, true);
         _ready = true;
       }
@@ -761,9 +865,10 @@
 
     uninit: function() {
       window.removeEventListener('focus', onFocus, true);
-      $(window).off('keyup', onKeyUp);
-      $(window).off('keydown', onKeyDown);
-      this.clear();
+      window.removeEventListener('keyup', onKeyUp);
+      window.removeEventListener('keydown', onKeyDown);
+      SpatialNavigation.clear();
+      _idPool = 0;
       _ready = false;
     },
 
@@ -775,55 +880,81 @@
       _duringFocusChange = false;
     },
 
+    // set(<config>);
+    // set(<sectionId>, <config>);
     set: function() {
       var sectionId, config;
-      if (arguments.length >= 1 && $.isPlainObject(arguments[0])) {
+
+      if (typeof arguments[0] === 'object') {
         config = arguments[0];
-      } else if (arguments.length >= 2 && $.type(arguments[0]) === 'string' &&
-                 $.isPlainObject(arguments[1])) {
+      } else if (typeof arguments[0] === 'string' &&
+                 typeof arguments[1] === 'object') {
         sectionId = arguments[0];
         config = arguments[1];
-
         if (!_sections[sectionId]) {
           throw new Error('Section "' + sectionId + '" doesn\'t exist!');
         }
+      } else {
+        return;
       }
 
       for (var key in config) {
-        if (config[key] !== undefined && GlobalConfig[key] !== undefined) {
+        if (GlobalConfig[key] !== undefined) {
           if (sectionId) {
             _sections[sectionId][key] = config[key];
-          } else {
+          } else if (config[key] !== undefined) {
             GlobalConfig[key] = config[key];
           }
         }
       }
+
+      if (sectionId) {
+        // remove "undefined" items
+        _sections[sectionId] = extend({}, _sections[sectionId]);
+      }
     },
 
-    add: function(section) {
-      var id = section.id;
+    // add(<config>);
+    // add(<sectionId>, <config>);
+    add: function() {
+      var sectionId;
+      var config = {};
 
-      if (!id) {
-        throw new Error('Miss the "id" property!');
-      } else if (_sections[id]) {
-        throw new Error('Section "' + id + '" has already existed!');
+      if (typeof arguments[0] === 'object') {
+        config = arguments[0];
+      } else if (typeof arguments[0] === 'string' &&
+                 typeof arguments[1] === 'object') {
+        sectionId = arguments[0];
+        config = arguments[1];
       }
 
-      _sections[id] = $.extend({}, section);
+      if (!sectionId) {
+        sectionId = (typeof config.id === 'string') ? config.id : generateId();
+      }
+
+      if (_sections[sectionId]) {
+        throw new Error('Section "' + sectionId + '" has already existed!');
+      }
+
+      _sections[sectionId] = {};
       _sectionCount++;
 
-      if (!_defaultSectionId) {
-        this.setDefaultSection(id);
-      }
+      SpatialNavigation.set(sectionId, config);
+
+      return sectionId;
     },
 
     remove: function(sectionId) {
-      if (!_sections[sectionId]) {
-        throw new Error('Section "' + sectionId + '" doesn\'t exist!');
+      if (!sectionId || typeof sectionId !== 'string') {
+        throw new Error('Please assign the "sectionId"!');
       }
-      _sections[sectionId] = undefined;
-      _sections = $.extend({}, _sections);
-      _sectionCount--;
+      if (_sections[sectionId]) {
+        _sections[sectionId] = undefined;
+        _sections = extend({}, _sections);
+        _sectionCount--;
+        return true;
+      }
+      return false;
     },
 
     pause: function() {
@@ -834,26 +965,80 @@
       _pause = false;
     },
 
-    focus: function() {
-      if (!arguments[0] || $.type(arguments[0]) === 'string') {
-        return focusSection(arguments[0]);
+    // focus()
+    // focus(<sectionId>)
+    // focus(<extSelector>)
+    // Note: "silent" is optional and default to false
+    focus: function(elem, silent) {
+      var result = false;
+
+      if (silent === undefined && typeof elem === 'boolean') {
+        silent = elem;
+        elem = undefined;
       }
 
-      var $elem = $(arguments[0]).first();
-      if (!$elem) {
-        return false;
+      var autoPause = !_pause && silent;
+
+      if (autoPause) {
+        SpatialNavigation.pause();
       }
 
-      $elem.focus();
-      focusChanged($elem.get(0));
-      return true;
+      if (!elem) {
+        result  = focusSection();
+      } else {
+        if (typeof elem === 'string') {
+          if (_sections[elem]) {
+            result = focusSection(elem);
+          } else {
+            result = focusExtendedSelector(elem);
+          }
+        } else {
+          if ($ && elem instanceof $) {
+            elem = elem.get(0);
+          }
+
+          var nextSectionId = getSectionId(elem);
+          if (isNavigable(elem, nextSectionId)) {
+            result = focusElement(elem, nextSectionId);
+          }
+        }
+      }
+
+      if (autoPause) {
+        SpatialNavigation.resume();
+      }
+
+      return result;
     },
 
+    // makeFocusable()
+    // makeFocusable(<sectionId>)
     makeFocusable: function(sectionId) {
+      var elementPrototype = Element.prototype;
+      var elementMatchesSelector =
+        elementPrototype.matches ||
+        elementPrototype.matchesSelector ||
+        elementPrototype.mozMatchesSelector ||
+        elementPrototype.webkitMatchesSelector ||
+        elementPrototype.msMatchesSelector ||
+        elementPrototype.oMatchesSelector ||
+        function (selector) {
+          var matchedNodes =
+            (this.parentNode || this.document).querySelectorAll(selector);
+          var i = matchedNodes.length;
+          while (--i >= 0 && matchedNodes[i] !== this);
+          return i > -1;
+        };
+
       var doMakeFocusable = function(section) {
         var tabIndexIgnoreList = section.tabIndexIgnoreList !== undefined ?
           section.tabIndexIgnoreList : GlobalConfig.tabIndexIgnoreList;
-        $(section.selector).not(tabIndexIgnoreList).attr('tabindex', -1);
+        var candidates = parseSelector(section.selector);
+        for (var i = 0; i < candidates.length; i++) {
+          if (!elementMatchesSelector.call(candidates[i], tabIndexIgnoreList)) {
+            candidates[i].setAttribute('tabindex', '-1');
+          }
+        }
       };
 
       if (sectionId) {
@@ -870,50 +1055,59 @@
     },
 
     setDefaultSection: function(sectionId) {
-      if (!_sections[sectionId]) {
+      if (!sectionId) {
+        _defaultSectionId = '';
+      } else if (!_sections[sectionId]) {
         throw new Error('Section "' + sectionId + '" doesn\'t exist!');
+      } else {
+        _defaultSectionId = sectionId;
       }
-      _defaultSectionId = sectionId;
     }
   };
+
+  window.SpatialNavigation = SpatialNavigation;
 
   /********************/
   /* jQuery Interface */
   /********************/
-  $.SpatialNavigation = function() {
-    SpatialNavigation.init();
+  if ($) {
+    $.SpatialNavigation = function() {
+      SpatialNavigation.init();
 
-    if (arguments.length > 0) {
-      if ($.isPlainObject(arguments[0])) {
-        SpatialNavigation.add(arguments[0]);
-      } else if ($.type(arguments[0]) === 'string' &&
-                 $.isFunction(SpatialNavigation[arguments[0]])) {
-        SpatialNavigation[arguments[0]]
-          .apply(SpatialNavigation, [].slice.call(arguments, 1));
+      if (arguments.length > 0) {
+        if ($.isPlainObject(arguments[0])) {
+          return SpatialNavigation.add(arguments[0]);
+        } else if ($.type(arguments[0]) === 'string' &&
+                   $.isFunction(SpatialNavigation[arguments[0]])) {
+          return SpatialNavigation[arguments[0]]
+            .apply(SpatialNavigation, [].slice.call(arguments, 1));
+        }
       }
-    }
 
-    return $.extend({}, SpatialNavigation);
-  };
+      return $.extend({}, SpatialNavigation);
+    };
 
-  $.fn.SpatialNavigation = function() {
-    var config;
+    $.fn.SpatialNavigation = function() {
+      var config;
 
-    if ($.isPlainObject(arguments[0])) {
-      config = arguments[0];
-    } else {
-      config = {
-        id: arguments[0]
-      };
-    }
+      if ($.isPlainObject(arguments[0])) {
+        config = arguments[0];
+      } else {
+        config = {
+          id: arguments[0]
+        };
+      }
 
-    if (!config.selector) {
-      config.selector = this.selector;
-    }
+      config.selector = this;
 
-    SpatialNavigation.init();
-    SpatialNavigation.add(config);
+      SpatialNavigation.init();
+      if (config.id) {
+        SpatialNavigation.remove(config.id);
+      }
+      SpatialNavigation.add(config);
+      SpatialNavigation.makeFocusable(config.id);
 
-    return this;
-  };
-})(jQuery);
+      return this;
+    };
+  }
+})(window.jQuery);
