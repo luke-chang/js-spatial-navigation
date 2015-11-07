@@ -760,7 +760,7 @@
     },
 
     uninit: function() {
-      window.addEventListener('focus', onFocus, true);
+      window.removeEventListener('focus', onFocus, true);
       $(window).off('keyup', onKeyUp);
       $(window).off('keydown', onKeyDown);
       this.clear();
