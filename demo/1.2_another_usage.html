@@ -8,17 +8,13 @@
     <link rel="stylesheet" href="css/style_1.css">
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
       $(function() {
-        // Or the shorthand (ignore "add"): $.SpatialNavigation({...});
-        $.SpatialNavigation('add', {
-          id: 'main',
-          selector: '.focusable'
-        });
-
-        $.SpatialNavigation('makeFocusable');
-        $.SpatialNavigation('focus');
+        $('.focusable')
+          .SpatialNavigation()
+          .first()
+          .focus();
       });
     </script>
   </head>

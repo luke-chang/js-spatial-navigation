@@ -7,25 +7,27 @@
 
     <link rel="stylesheet" href="css/style_1.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
-      $(function() {
-        var SN = $.SpatialNavigation();
+      window.addEventListener('load', function() {
+        // Initialize
+        SpatialNavigation.init();
 
         // Define the navigable elements.
-        SN.add({
-          id: 'main',
+        SpatialNavigation.add({
           selector: '.focusable'
         });
 
-        // Add 'tabindex="-1"' to "currently-existing" navigable elements.
-        // Note: If a new navigable element is appended to DOM tree, you may
-        // need to call this method again.
-        SN.makeFocusable();
+        // Add 'tabindex="-1"' to "currently-existing" navigable elements. It's
+        // just a helper and is optional since you can actually add "tabindex"
+        // by yourself.
+        //
+        // Note: If a new navigable element is appended to DOM tree afterwards,
+        // you may need to call this method again.
+        SpatialNavigation.makeFocusable();
 
         // Focus the first navigable element.
-        SN.focus();
+        SpatialNavigation.focus();
       });
     </script>
   </head>

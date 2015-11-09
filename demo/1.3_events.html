@@ -7,12 +7,12 @@
 
     <link rel="stylesheet" href="css/style_1.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
-      $(function() {
-        var SN = $.SpatialNavigation({
-          id: 'main',
+      window.addEventListener('load', function() {
+        SpatialNavigation.init();
+
+        SpatialNavigation.add({
           selector: '.focusable'
         });
 
@@ -27,12 +27,16 @@
           'sn:navigatefailed'
         ];
 
-        $('.focusable').on(validEvents.join(' '), function(evt) {
+        var eventHandler = function(evt) {
           console.log(evt.type + ': ' + evt.target.id);
+        };
+
+        validEvents.forEach(function(type) {
+          window.addEventListener(type, eventHandler);
         });
 
-        SN.makeFocusable();
-        SN.focus();
+        SpatialNavigation.makeFocusable();
+        SpatialNavigation.focus();
       });
     </script>
   </head>

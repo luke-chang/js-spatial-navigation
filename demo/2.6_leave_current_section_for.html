@@ -8,14 +8,15 @@
     <link rel="stylesheet" href="css/style_2.css">
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script src="js/util.js"></script>
     <script>
       $(function() {
-        var SN = $.SpatialNavigation();
+        var SN = SpatialNavigation;
 
-        SN.add({
-          id: 'menu',
+        SN.init();
+
+        SN.add('menu', {
           selector: '.leftbox .focusable',
           enterTo: 'last-focused',
 
@@ -35,8 +36,7 @@
           }
         });
 
-        SN.add({
-          id: 'content',
+        SN.add('content', {
           selector: '.rightbox .focusable',
           leaveFor: {
             up: '',

@@ -8,11 +8,13 @@
     <link rel="stylesheet" href="css/style_2.css">
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script src="js/util.js"></script>
     <script>
       $(function() {
-        var SN = $.SpatialNavigation();
+        var SN = SpatialNavigation;
+
+        SN.init();
 
         SN.add({
           id: 'menu',
@@ -23,8 +25,6 @@
           id: 'content',
           selector: '.rightbox .focusable'
         });
-
-        SN.makeFocusable();
 
         $('.leftbox .focusable')
           .on('sn:willfocus', function() {
@@ -49,6 +49,7 @@
               .addClass('visible');
           });
 
+        SN.makeFocusable();
         SN.focus();
       });
     </script>

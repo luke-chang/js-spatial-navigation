@@ -9,12 +9,15 @@
     <link rel="stylesheet" href="css/style_3.css">
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script src="js/util.js"></script>
     <script>
       $(function() {
-        // Retrieve the SpatialNavigation singleton object.
-        var SN = $.SpatialNavigation();
+        // A short name of the SpatialNavigation singleton object.
+        var SN = SpatialNavigation;
+
+        // Initialize
+        SN.init();
 
         // Add the first section "upperbox".
         SN.add({
@@ -38,7 +41,7 @@
         // Add the third section "settings-dialog".
         //
         // Any invisible elements can't be navigated at all so we can add this
-        // section at anytime and don't need to concern their visibility.
+        // section at anytime and don't need to concern their current status.
         SN.add({
           id: 'settings-dialog',
           selector: '#settings-dialog .focusable',
@@ -123,6 +126,15 @@
             // For testing only.
             console.log(id);
           });
+
+        // Press ESC key to dismiss the settings dialog.
+        $(window).keydown(function(evt) {
+          if (evt.keyCode == 27 && !$('#settings-container').hasClass('hide')) {
+            $('#settings-container').addClass('hide');
+            SN.focus('upperbox');
+            return false;
+          }
+        });
 
         // Set everything with "tabindex=-1".
         SN.makeFocusable();

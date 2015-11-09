@@ -7,23 +7,23 @@
 
     <link rel="stylesheet" href="css/style_1.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
-      $(function() {
-        // We can define our own filter function.
-        function navigableFilter(elem) {
-          return !$(elem).hasClass('filterout');
-        }
+      window.addEventListener('load', function() {
+        SpatialNavigation.init();
 
-        var SN = $.SpatialNavigation({
+        SpatialNavigation.add({
           id: 'main',
           selector: '.focusable',
-          navigableFilter: navigableFilter
+
+          // We can define our own filter function.
+          navigableFilter: function(elem) {
+            return elem.className.indexOf('filterout') < 0;
+          }
         });
 
-        SN.makeFocusable();
-        SN.focus();
+        SpatialNavigation.makeFocusable();
+        SpatialNavigation.focus();
       });
     </script>
   </head>

@@ -18,7 +18,7 @@
   font-size: 0px;
 }
 
-.leftbox .focusable, .bottombox .focusable {
+.leftbox .focusable, .bottombox .focusable, .nonfocusable {
   background-color: blue;
   width: 200px;
   height: 114px;
@@ -31,11 +31,13 @@
   font-size: 1rem;
 }
 
-.leftbox .nonfocusable {
+.nonfocusable {
   background-color: #bbb;
-  width: 200px;
-  height: 114px;
-  margin: 5px;
+  color: black;
+}
+
+.nonfocusable::before {
+  content: 'Non-focusable Element';
 }
 
 .bottombox .focusable {

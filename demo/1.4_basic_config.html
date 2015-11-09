@@ -7,14 +7,17 @@
 
     <link rel="stylesheet" href="css/style_1.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
-      $(function() {
-        // We can add some configurations when initializing.
-        var SN = $.SpatialNavigation({
-          id: 'main',
+      window.addEventListener('load', function() {
+        SpatialNavigation.init();
+
+        // We can add some configurations when initializing a section.
+        SpatialNavigation.add({
           selector: '.focusable',
+
+          // Give it an id so we can identify it later.
+          id: 'main',
 
           // Limit the navigating direction to vertical and horizontal only.
           // Targets in oblique (left-top, right-top, left-bottom, and
@@ -33,27 +36,23 @@
           rememberSource: true
         });
 
-        SN.makeFocusable();
-        SN.focus();
+        SpatialNavigation.makeFocusable();
+        SpatialNavigation.focus();
 
-        $('input[type="checkbox"]')
-          .prop('checked', true)
-          .change(function() {
-            var config = {};
-            config[$(this).val()] = $(this).prop('checked');
+        [].slice.call(document.querySelectorAll('input[type="checkbox"]'))
+          .forEach(function(elem) {
+            elem.checked = true;
 
-            // And we can change the configurations of the specified section
-            // anytime.
-            // Note: It section id is omitted, you'll be able to change the
-            // global configurations.
-            SN.set('main', config);
+            elem.addEventListener('change', function(evt) {
+              var config = {};
+              config[this.value] = this.checked;
+
+              // You can change the configurations of the specified section at
+              // runtime. If section id is omitted, the global configurations
+              // will be changed.
+              SpatialNavigation.set('main', config);
+            });
           });
-
-        // Listen to "sn:enter" event for the ENTER key event.
-        $('#sidebox .focusable').on('sn:enter-down', function() {
-          $(this).find('input').click();
-          return false;
-        });
       });
     </script>
   </head>
@@ -80,12 +79,8 @@
     </div>
     <div id="sidebox">
       Config:
-      <span class="focusable">
-        <label><input type="checkbox" name="config" value="straightOnly"> straightOnly</label>
-      </span>
-      <span class="focusable">
-        <label><input type="checkbox" name="config" value="rememberSource"> rememberSource</label>
-      </span>
+      <label><input type="checkbox" name="config" value="straightOnly"> straightOnly</label>
+      <label><input type="checkbox" name="config" value="rememberSource"> rememberSource</label>
     </div>
   </body>
 </html>

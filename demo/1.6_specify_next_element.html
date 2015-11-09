@@ -7,17 +7,18 @@
 
     <link rel="stylesheet" href="css/style_1.css">
 
-    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
-    <script src="../jquery.SpatialNavigation.js"></script>
+    <script src="../spatial_navigation.js"></script>
     <script>
-      $(function() {
-        var SN = $.SpatialNavigation({
+      window.addEventListener('load', function() {
+        SpatialNavigation.init();
+
+        SpatialNavigation.add({
           id: 'main',
           selector: '.focusable'
         });
 
-        SN.makeFocusable();
-        SN.focus();
+        SpatialNavigation.makeFocusable();
+        SpatialNavigation.focus();
       });
     </script>
   </head>
@@ -38,8 +39,8 @@
             You can use "data-sn-{up|down|left|right}" attributes to specify the
             next element you want.
 
-            Please use jQuery selector string as its value. If the value is
-            omitted, you'll jump to nowhere.
+            The value accepts <extSelector> format. If the value is omitted, you
+            will jump to nowhere.
           -->
           <div class="focusable" data-sn-down="#target">Press DOWN here.</div>
           <div class="focusable"></div><br>
