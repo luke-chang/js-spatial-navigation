@@ -410,7 +410,9 @@
       }
     }
 
-    if (!dest) dest = destGroup[0].element;
+    if (!dest) {
+      dest = destGroup[0].element;
+    }
 
     return dest;
   }
@@ -477,21 +479,25 @@
     return elemList;
   }
 
-  function isNavigable(elem, sectionId) {
-    if (! elem) {
+  function isNavigable(elem, sectionId, verifySectionSelector) {
+    if (! elem || !sectionId || !_sections[sectionId]) {
       return false;
     }
     if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) || elem.disabled) {
       return false;
     }
-    if (sectionId &&
-        typeof _sections[sectionId].navigableFilter === 'function') {
+    if (verifySectionSelector &&
+        parseSelector(_sections[sectionId].selector).indexOf(elem) < 0) {
+      return false;
+    }
+    if (typeof _sections[sectionId].navigableFilter === 'function') {
       if (_sections[sectionId].navigableFilter(elem, sectionId) === false) {
         return false;
       }
-    } else if (typeof GlobalConfig.navigableFilter === 'function' &&
-               GlobalConfig.navigableFilter(elem, sectionId) === false) {
-      return false;
+    } else if (typeof GlobalConfig.navigableFilter === 'function') {
+      if (GlobalConfig.navigableFilter(elem, sectionId) === false) {
+        return false;
+      }
     }
     return true;
   }
@@ -623,7 +629,7 @@
     } else {
       addRange(_defaultSectionId);
       addRange(_lastSectionId);
-      addRange(Object.keys(_sections)[0]);
+      Object.keys(_sections).map(addRange);
     }
 
     for (var i = 0; i < range.length && !next; i++) {
@@ -642,7 +648,7 @@
           }
         }
 
-        if (elem && isNavigable(elem, id)) {
+        if (elem && isNavigable(elem, id, true)) {
           next = elem;
           nextSectionId = id;
         }
@@ -724,7 +730,7 @@
 
     if (!currentFocusedElement) {
       if (_lastSectionId && _sections[_lastSectionId] && isNavigable(
-                _sections[_lastSectionId].lastFocusedElement, _lastSectionId)) {
+          _sections[_lastSectionId].lastFocusedElement, _lastSectionId, true)) {
         currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
       } else {
         focusSection();
@@ -807,7 +813,7 @@
         var nextSection = _sections[nextSectionId];
         if (nextSection.enterTo == 'last-focused' &&
             nextSection.lastFocusedElement &&
-            isNavigable(nextSection.lastFocusedElement, nextSectionId)) {
+            isNavigable(nextSection.lastFocusedElement, nextSectionId, true)) {
           next = nextSection.lastFocusedElement;
         } else if (nextSection.enterTo == 'default-element' &&
                    nextSection.defaultElement) {
@@ -817,7 +823,7 @@
           } else if ($ && defaultElement instanceof $) {
             defaultElement = defaultElement.get(0);
           }
-          if (isNavigable(defaultElement, nextSectionId)) {
+          if (isNavigable(defaultElement, nextSectionId, true)) {
             next = defaultElement;
           }
         }
@@ -965,9 +971,9 @@
       _pause = false;
     },
 
-    // focus()
-    // focus(<sectionId>)
-    // focus(<extSelector>)
+    // focus([silent])
+    // focus(<sectionId>, [silent])
+    // focus(<extSelector>, [silent])
     // Note: "silent" is optional and default to false
     focus: function(elem, silent) {
       var result = false;
@@ -1025,9 +1031,7 @@
         function (selector) {
           var matchedNodes =
             (this.parentNode || this.document).querySelectorAll(selector);
-          var i = matchedNodes.length;
-          while (--i >= 0 && matchedNodes[i] !== this);
-          return i > -1;
+          return [].slice.call(matchedNodes).indexOf(this) >= 0;
         };
 
       var doMakeFocusable = function(section) {
