@@ -13,14 +13,14 @@
   /* Global Configuration */
   /************************/
   // Note: an <extSelector> can be one of following types:
-  // - a valid selector string for "querySelector" or jQuery (if it exists)
-  // - a standard DOM element
+  // - a valid selector string for "querySelectorAll" or jQuery (if it exists)
+  // - a NodeList or an array containing DOM elements
+  // - a single DOM element
   // - a jQuery object
   // - a string "@<sectionId>" to indicate the specified section
   // - a string "@" to indicate the default section
   var GlobalConfig = {
-    selector: '',           // can be a valid selector string, a set of DOM
-                            // elements or an jQuery object.
+    selector: '',           // can be a valid <extSelector> except "@" syntax.
     straightOnly: false,
     straightOverlapThreshold: 0.5,
     rememberSource: false,
@@ -432,13 +432,17 @@
   }
 
   function parseSelector(selector) {
-    var result = [];
+    var result;
     if ($) {
       result = $(selector).get();
     } else if (typeof selector === 'string') {
       result = [].slice.call(document.querySelectorAll(selector));
     } else if (typeof selector === 'object' && selector.length) {
       result = [].slice.call(selector);
+    } else if (typeof selector === 'object' && selector.nodeType === 1) {
+      result = [selector];
+    } else {
+      result = [];
     }
     return result;
   }
@@ -700,58 +704,16 @@
     return false;
   }
 
-  function onKeyDown(evt) {
-    var preventDefault = function() {
-      evt.preventDefault();
-      evt.stopPropagation();
-      return false;
-    };
-
-    var next, nextSectionId, currentFocusedElement;
-
-    if (!_sectionCount || _pause) {
-      return;
-    }
-
-    var direction = KEYMAPPING[evt.keyCode];
-    if (!direction) {
-      if (evt.keyCode == 13) {
-        currentFocusedElement = getCurrentFocusedElement();
-        if (currentFocusedElement && getSectionId(currentFocusedElement)) {
-          if (!fireEvent(currentFocusedElement, 'enter-down')) {
-            return preventDefault();
-          }
-        }
-      }
-      return;
-    }
-
-    currentFocusedElement = getCurrentFocusedElement();
-
-    if (!currentFocusedElement) {
-      if (_lastSectionId && _sections[_lastSectionId] && isNavigable(
-          _sections[_lastSectionId].lastFocusedElement, _lastSectionId, true)) {
-        currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
-      } else {
-        focusSection();
-        return preventDefault();
-      }
-    }
-
-    var currentSectionId = getSectionId(currentFocusedElement);
-    if (!currentSectionId) {
-      focusSection();
-      return preventDefault();
-    }
-
+  function focusNext(direction, currentFocusedElement, currentSectionId) {
     var extSelector =
       currentFocusedElement.getAttribute('data-sn-' + direction);
     if (typeof extSelector === 'string') {
       if (extSelector === '' ||
           !focusExtendedSelector(extSelector)) {
         fireNavigatefailed(currentFocusedElement, direction);
+        return false;
       }
-      return preventDefault();
+      return true;
     }
 
     var sectionNavigableElements = {};
@@ -763,6 +725,7 @@
     }
 
     var config = extend({}, GlobalConfig, _sections[currentSectionId]);
+    var next;
 
     if (config.restrict == 'self-only' || config.restrict == 'self-first') {
       var currentSectionNavigableElements =
@@ -799,15 +762,15 @@
         reverse: REVERSE[direction]
       };
 
-      nextSectionId = getSectionId(next);
+      var nextSectionId = getSectionId(next);
 
       if (currentSectionId != nextSectionId) {
         var result = gotoLeaveFor(currentSectionId, direction);
         if (result) {
-          return preventDefault();
+          return true;
         } else if (result === null) {
           fireNavigatefailed(currentFocusedElement, direction);
-          return preventDefault();
+          return false;
         }
 
         var nextSection = _sections[nextSectionId];
@@ -829,11 +792,59 @@
         }
       }
 
-      focusElement(next, nextSectionId);
-    } else if (!gotoLeaveFor(currentSectionId, direction)) {
-      fireNavigatefailed(currentFocusedElement, direction);
+      return focusElement(next, nextSectionId);
+    } else if (gotoLeaveFor(currentSectionId, direction)) {
+      return true;
     }
 
+    fireNavigatefailed(currentFocusedElement, direction);
+    return false;
+  }
+
+  function onKeyDown(evt) {
+    if (!_sectionCount || _pause) {
+      return;
+    }
+
+    var currentFocusedElement;
+    var preventDefault = function() {
+      evt.preventDefault();
+      evt.stopPropagation();
+      return false;
+    };
+
+    var direction = KEYMAPPING[evt.keyCode];
+    if (!direction) {
+      if (evt.keyCode == 13) {
+        currentFocusedElement = getCurrentFocusedElement();
+        if (currentFocusedElement && getSectionId(currentFocusedElement)) {
+          if (!fireEvent(currentFocusedElement, 'enter-down')) {
+            return preventDefault();
+          }
+        }
+      }
+      return;
+    }
+
+    currentFocusedElement = getCurrentFocusedElement();
+
+    if (!currentFocusedElement) {
+      if (_lastSectionId && _sections[_lastSectionId] && isNavigable(
+          _sections[_lastSectionId].lastFocusedElement, _lastSectionId, true)) {
+        currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
+      } else {
+        focusSection();
+        return preventDefault();
+      }
+    }
+
+    var currentSectionId = getSectionId(currentFocusedElement);
+    if (!currentSectionId) {
+      focusSection();
+      return;
+    }
+
+    focusNext(direction, currentFocusedElement, currentSectionId);
     return preventDefault();
   }
 
@@ -1015,6 +1026,28 @@
       }
 
       return result;
+    },
+
+    // move(<direction>)
+    // move(<direction>, <selector>)
+    move: function(direction, selector) {
+      direction = direction.toLowerCase();
+      if (!REVERSE[direction]) {
+        return false;
+      }
+
+      var elem = selector ?
+        parseSelector(selector)[0] : getCurrentFocusedElement();
+      if (!elem) {
+        return false;
+      }
+
+      var sectionId = getSectionId(elem);
+      if (!sectionId) {
+        return false;
+      }
+
+      return focusNext(direction, elem, sectionId);
     },
 
     // makeFocusable()
