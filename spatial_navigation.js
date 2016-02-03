@@ -1,7 +1,7 @@
 /*
  * A javascript-based implementation of Spatial Navigation.
  *
- * Copyright (c) 2015 Luke Chang.
+ * Copyright (c) 2016 Luke Chang.
  * https://github.com/luke-chang/jquery-spatialNavigation
  *
  * Licensed under the MPL license.
@@ -65,6 +65,22 @@
   var _defaultSectionId = '';
   var _lastSectionId = '';
   var _duringFocusChange = false;
+
+  /************/
+  /* Polyfill */
+  /************/
+  var elementMatchesSelector =
+    Element.prototype.matches ||
+    Element.prototype.matchesSelector ||
+    Element.prototype.mozMatchesSelector ||
+    Element.prototype.webkitMatchesSelector ||
+    Element.prototype.msMatchesSelector ||
+    Element.prototype.oMatchesSelector ||
+    function (selector) {
+      var matchedNodes =
+        (this.parentNode || this.document).querySelectorAll(selector);
+      return [].slice.call(matchedNodes).indexOf(this) >= 0;
+    };
 
   /*****************/
   /* Core Function */
@@ -447,9 +463,22 @@
     return result;
   }
 
+  function matchSelector(elem, selector) {
+    if ($) {
+      return $(elem).is(selector);
+    } else if (typeof selector === 'string') {
+      return elementMatchesSelector.call(elem, selector);
+    } else if (typeof selector === 'object' && selector.length) {
+      return selector.indexOf(elem) >= 0;
+    } else if (typeof selector === 'object' && selector.nodeType === 1) {
+      return elem === selector;
+    }
+    return false;
+  }
+
   function getCurrentFocusedElement() {
     var activeElement = document.activeElement;
-    if (activeElement != document && activeElement !== document.body) {
+    if (activeElement && activeElement !== document.body) {
       return activeElement;
     }
   }
@@ -491,7 +520,7 @@
       return false;
     }
     if (verifySectionSelector &&
-        parseSelector(_sections[sectionId].selector).indexOf(elem) < 0) {
+        !matchSelector(elem, _sections[sectionId].selector)) {
       return false;
     }
     if (typeof _sections[sectionId].navigableFilter === 'function') {
@@ -508,8 +537,7 @@
 
   function getSectionId(elem) {
     for (var id in _sections) {
-      var sectionElements = parseSelector(_sections[id].selector);
-      if (sectionElements.indexOf(elem) >= 0) {
+      if (matchSelector(elem, _sections[id].selector)) {
         return id;
       }
     }
@@ -522,7 +550,7 @@
   }
 
   function fireEvent(elem, type, details) {
-    var evt = document.createEvent( 'CustomEvent' );
+    var evt = document.createEvent('CustomEvent');
     evt.initCustomEvent(EVENT_PREFIX + type, true, true, details);
     return elem.dispatchEvent(evt);
   }
@@ -1053,26 +1081,11 @@
     // makeFocusable()
     // makeFocusable(<sectionId>)
     makeFocusable: function(sectionId) {
-      var elementPrototype = Element.prototype;
-      var elementMatchesSelector =
-        elementPrototype.matches ||
-        elementPrototype.matchesSelector ||
-        elementPrototype.mozMatchesSelector ||
-        elementPrototype.webkitMatchesSelector ||
-        elementPrototype.msMatchesSelector ||
-        elementPrototype.oMatchesSelector ||
-        function (selector) {
-          var matchedNodes =
-            (this.parentNode || this.document).querySelectorAll(selector);
-          return [].slice.call(matchedNodes).indexOf(this) >= 0;
-        };
-
       var doMakeFocusable = function(section) {
         var tabIndexIgnoreList = section.tabIndexIgnoreList !== undefined ?
           section.tabIndexIgnoreList : GlobalConfig.tabIndexIgnoreList;
-        var candidates = parseSelector(section.selector);
-        candidates.forEach(function(elem) {
-          if (!elementMatchesSelector.call(elem, tabIndexIgnoreList)) {
+        parseSelector(section.selector).forEach(function(elem) {
+          if (!matchSelector(elem, tabIndexIgnoreList)) {
             if (!elem.getAttribute('tabindex')) {
               elem.setAttribute('tabindex', '-1');
             }
