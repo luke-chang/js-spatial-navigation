@@ -2,7 +2,7 @@
  * A javascript-based implementation of Spatial Navigation.
  *
  * Copyright (c) 2016 Luke Chang.
- * https://github.com/luke-chang/jquery-spatialNavigation
+ * https://github.com/luke-chang/js-spatial-navigation
  *
  * Licensed under the MPL license.
  */
