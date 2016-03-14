@@ -24,7 +24,7 @@
     straightOnly: false,
     straightOverlapThreshold: 0.5,
     rememberSource: false,
-    defaultElement: '',     // <extSelector>
+    defaultElement: '',     // <extSelector> except "@" syntax.
     enterTo: '',            // '', 'last-focused', 'default-element'
     leaveFor: null,         // {left: <extSelector>, right: <extSelector>,
                             //  up: <extSelector>, down: <extSelector>}
@@ -549,6 +549,30 @@
     });
   }
 
+  function getSectionDefaultElement(sectionId) {
+    var defaultElement = _sections[sectionId].defaultElement;
+    if (!defaultElement) {
+      return null;
+    }
+    if (typeof defaultElement === 'string') {
+      defaultElement = parseSelector(defaultElement)[0];
+    } else if ($ && defaultElement instanceof $) {
+      defaultElement = defaultElement.get(0);
+    }
+    if (isNavigable(defaultElement, sectionId, true)) {
+      return defaultElement;
+    }
+    return null;
+  }
+
+  function getSectionLastFocusedElement(sectionId) {
+    var lastFocusedElement = _sections[sectionId].lastFocusedElement;
+    if (!isNavigable(lastFocusedElement, sectionId, true)) {
+      return null;
+    }
+    return lastFocusedElement;
+  }
+
   function fireEvent(elem, type, details) {
     var evt = document.createEvent('CustomEvent');
     evt.initCustomEvent(EVENT_PREFIX + type, true, true, details);
@@ -644,9 +668,6 @@
   }
 
   function focusSection(sectionId) {
-    var next, nextSectionId;
-    var elemOrder = ['defaultElement', 'lastFocusedElement'];
-
     var range = [];
     var addRange = function(id) {
       if (id && range.indexOf(id) < 0 && _sections[id]) {
@@ -664,42 +685,26 @@
       Object.keys(_sections).map(addRange);
     }
 
-    for (var i = 0; i < range.length && !next; i++) {
+    for (var i = 0; i < range.length; i++) {
       var id = range[i];
+      var next;
 
-      for (var j = 0; j < elemOrder.length && !next; j++) {
-        var elem = _sections[id][elemOrder[j]];
-
-        if ($ && elem instanceof $) {
-          elem = elem.get(0);
-        } else if (typeof elem === 'string') {
-          if (focusExtendedSelector(elem)) {
-            return true;
-          } else {
-            continue;
-          }
-        }
-
-        if (elem && isNavigable(elem, id, true)) {
-          next = elem;
-          nextSectionId = id;
-        }
+      if (_sections[id].enterTo == 'last-focused') {
+        next = getSectionLastFocusedElement(id) ||
+               getSectionDefaultElement(id) ||
+               getSectionNavigableElements(id)[0];
+      } else {
+        next = getSectionDefaultElement(id) ||
+               getSectionLastFocusedElement(id) ||
+               getSectionNavigableElements(id)[0];
       }
 
-      if (!next) {
-        var navigableElements = getSectionNavigableElements(id);
-        if (navigableElements.length) {
-          next = navigableElements[0];
-          nextSectionId = id;
-        }
+      if (next) {
+        return focusElement(next, id);
       }
     }
 
-    if (!next) {
-      return false;
-    }
-
-    return focusElement(next, nextSectionId);
+    return false;
   }
 
   function fireNavigatefailed(elem, direction) {
@@ -801,22 +806,18 @@
           return false;
         }
 
-        var nextSection = _sections[nextSectionId];
-        if (nextSection.enterTo == 'last-focused' &&
-            nextSection.lastFocusedElement &&
-            isNavigable(nextSection.lastFocusedElement, nextSectionId, true)) {
-          next = nextSection.lastFocusedElement;
-        } else if (nextSection.enterTo == 'default-element' &&
-                   nextSection.defaultElement) {
-          var defaultElement = nextSection.defaultElement;
-          if (typeof defaultElement === 'string') {
-            defaultElement = parseSelector(defaultElement)[0];
-          } else if ($ && defaultElement instanceof $) {
-            defaultElement = defaultElement.get(0);
-          }
-          if (isNavigable(defaultElement, nextSectionId, true)) {
-            next = defaultElement;
-          }
+        var enterToElement;
+        switch (_sections[nextSectionId].enterTo) {
+          case 'last-focused':
+            enterToElement = getSectionLastFocusedElement(nextSectionId) ||
+                             getSectionDefaultElement(nextSectionId);
+            break;
+          case 'default-element':
+            enterToElement = getSectionDefaultElement(nextSectionId);
+            break;
+        }
+        if (enterToElement) {
+          next = enterToElement;
         }
       }
 
@@ -857,10 +858,10 @@
     currentFocusedElement = getCurrentFocusedElement();
 
     if (!currentFocusedElement) {
-      if (_lastSectionId && _sections[_lastSectionId] && isNavigable(
-          _sections[_lastSectionId].lastFocusedElement, _lastSectionId, true)) {
-        currentFocusedElement = _sections[_lastSectionId].lastFocusedElement;
-      } else {
+      if (_lastSectionId) {
+        currentFocusedElement = getSectionLastFocusedElement(_lastSectionId);
+      }
+      if (!currentFocusedElement) {
         focusSection();
         return preventDefault();
       }
