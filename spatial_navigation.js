@@ -24,6 +24,7 @@
     straightOnly: false,
     straightOverlapThreshold: 0.5,
     rememberSource: false,
+    disabled: false,
     defaultElement: '',     // <extSelector> except "@" syntax.
     enterTo: '',            // '', 'last-focused', 'default-element'
     leaveFor: null,         // {left: <extSelector>, right: <extSelector>,
@@ -513,7 +514,8 @@
   }
 
   function isNavigable(elem, sectionId, verifySectionSelector) {
-    if (! elem || !sectionId || !_sections[sectionId]) {
+    if (! elem || !sectionId ||
+        !_sections[sectionId] || _sections[sectionId].disabled) {
       return false;
     }
     if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) || elem.disabled) {
@@ -537,7 +539,8 @@
 
   function getSectionId(elem) {
     for (var id in _sections) {
-      if (matchSelector(elem, _sections[id].selector)) {
+      if (!_sections[id].disabled &&
+          matchSelector(elem, _sections[id].selector)) {
         return id;
       }
     }
@@ -670,15 +673,14 @@
   function focusSection(sectionId) {
     var range = [];
     var addRange = function(id) {
-      if (id && range.indexOf(id) < 0 && _sections[id]) {
+      if (id && range.indexOf(id) < 0 &&
+          _sections[id] && !_sections[id].disabled) {
         range.push(id);
       }
     };
 
     if (sectionId) {
-      if (_sections[sectionId]) {
-        addRange(sectionId);
-      }
+      addRange(sectionId);
     } else {
       addRange(_defaultSectionId);
       addRange(_lastSectionId);
@@ -998,6 +1000,22 @@
         _sections[sectionId] = undefined;
         _sections = extend({}, _sections);
         _sectionCount--;
+        return true;
+      }
+      return false;
+    },
+
+    disable: function(sectionId) {
+      if (_sections[sectionId]) {
+        _sections[sectionId].disabled = true;
+        return true;
+      }
+      return false;
+    },
+
+    enable: function(sectionId) {
+      if (_sections[sectionId]) {
+        _sections[sectionId].disabled = false;
         return true;
       }
       return false;
