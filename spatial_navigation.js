@@ -518,7 +518,7 @@
         !_sections[sectionId] || _sections[sectionId].disabled) {
       return false;
     }
-    if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) || elem.disabled) {
+    if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0)) {
       return false;
     }
     if (verifySectionSelector &&
