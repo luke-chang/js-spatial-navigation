@@ -624,7 +624,7 @@
     }
 
     var focusProperties = {
-      from: currentFocusedElement,
+      previous: currentFocusedElement,
       section: sectionId
     };
     if (!fireEvent(elem, 'willfocus', focusProperties)) {
@@ -892,9 +892,45 @@
   }
 
   function onFocus(evt) {
-    if (evt.target !== window && evt.target !== document &&
+    var target = evt.target;
+    if (target !== window && target !== document &&
         _sectionCount && !_duringFocusChange) {
-      focusChanged(evt.target);
+      var sectionId = getSectionId(target);
+      if (sectionId) {
+        if (_pause) {
+          focusChanged(target, sectionId);
+          return;
+        }
+
+        var focusProperties = {
+          section: sectionId
+        };
+
+        if (!fireEvent(target, 'willfocus', focusProperties)) {
+          _duringFocusChange = true;
+          target.blur();
+          _duringFocusChange = false;
+        } else {
+          fireEvent(target, 'focused', focusProperties);
+          focusChanged(target, sectionId);
+        }
+      }
+    }
+  }
+
+  function onBlur(evt) {
+    var target = evt.target;
+    if (target !== window && target !== document && !_pause &&
+        _sectionCount && !_duringFocusChange && getSectionId(target)) {
+      if (!fireEvent(target, 'willunfocus')) {
+        _duringFocusChange = true;
+        setTimeout(function() {
+          target.focus();
+          _duringFocusChange = false;
+        });
+      } else {
+        fireEvent(target, 'unfocused');
+      }
     }
   }
 
@@ -907,11 +943,13 @@
         window.addEventListener('keydown', onKeyDown);
         window.addEventListener('keyup', onKeyUp);
         window.addEventListener('focus', onFocus, true);
+        window.addEventListener('blur', onBlur, true);
         _ready = true;
       }
     },
 
     uninit: function() {
+      window.removeEventListener('blur', onBlur, true);
       window.removeEventListener('focus', onFocus, true);
       window.removeEventListener('keyup', onKeyUp);
       window.removeEventListener('keydown', onKeyDown);

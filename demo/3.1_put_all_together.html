@@ -57,24 +57,21 @@
           defaultElement: '#button-cancel'
         });
 
-        // Implement the interaction when "hovering" the "button-function" icon.
-        // Listening to "focus" event as well makes this interaction support
-        // mouse operations, too.
-        $('#upperbox .focusable').on('sn:focused focus', function() {
-          if (this.id == 'button-function') {
-            $('#button-function-area .sub-button').removeClass('hide');
-          }
+        // Expand the "button-function" area.
+        $('#button-function').on('sn:focused', function() {
+          $('#button-function-area .sub-button').removeClass('hide');
         });
 
-        // Restore the interaction of the "button-function" icon.
-        // We use native "focus" event to observe the focus change event
-        // triggered from mouse operations.
-        window.addEventListener('focus', function(evt) {
-          if (!$(evt.target).parents('#button-function-area').length) {
-            $('#button-function-area .sub-button').addClass('hide');
-          }
-        }, true); // The "focus" event doesn't bubble so we can only listen it
-                  // in capturing phase.
+        // Collapse the "button-function" area.
+        $('#button-function-area .button').on('sn:unfocused', function() {
+          // Use "setTimeout" to defer the action so that we can get the next
+          // focused element.
+          setTimeout(function() {
+            if (!$(':focus').is('#button-function-area .button')) {
+              $('#button-function-area .sub-button').addClass('hide');
+            }
+          });
+        });
 
         // Implement "ensureVisible" feature.
         $('#middlebox .focusable').on('sn:willfocus', function() {

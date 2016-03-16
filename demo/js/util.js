@@ -24,7 +24,7 @@
         done: callback.bind(this)
       });
     } else {
-      callback.call(this);
+      setTimeout(callback.bind(this));
     }
 
     return this;
