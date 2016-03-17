@@ -585,7 +585,7 @@
     return elem.dispatchEvent(evt);
   }
 
-  function focusElement(elem, sectionId) {
+  function focusElement(elem, sectionId, direction) {
     if (!elem) {
       return false;
     }
@@ -615,8 +615,9 @@
 
     if (currentFocusedElement) {
       var unfocusProperties = {
-        next: elem,
-        nextSection: sectionId
+        nextElement: elem,
+        nextSectionId: sectionId,
+        direction: direction
       };
       if (!fireEvent(currentFocusedElement, 'willunfocus', unfocusProperties)) {
         _duringFocusChange = false;
@@ -627,8 +628,9 @@
     }
 
     var focusProperties = {
-      previous: currentFocusedElement,
-      section: sectionId
+      previousElement: currentFocusedElement,
+      sectionId: sectionId,
+      direction: direction
     };
     if (!fireEvent(elem, 'willfocus', focusProperties)) {
       _duringFocusChange = false;
@@ -653,7 +655,7 @@
     }
   }
 
-  function focusExtendedSelector(selector) {
+  function focusExtendedSelector(selector, direction) {
     if (selector.charAt(0) == '@') {
       if (selector.length == 1) {
         return focusSection();
@@ -666,7 +668,7 @@
       if (next) {
         var nextSectionId = getSectionId(next);
         if (isNavigable(next, nextSectionId)) {
-          return focusElement(next, nextSectionId);
+          return focusElement(next, nextSectionId, direction);
         }
       }
     }
@@ -727,7 +729,7 @@
         if (next === '') {
           return null;
         }
-        return focusExtendedSelector(next);
+        return focusExtendedSelector(next, direction);
       }
 
       if ($ && next instanceof $) {
@@ -736,7 +738,7 @@
 
       var nextSectionId = getSectionId(next);
       if (isNavigable(next, nextSectionId)) {
-        return focusElement(next, nextSectionId);
+        return focusElement(next, nextSectionId, direction);
       }
     }
     return false;
@@ -747,7 +749,7 @@
       currentFocusedElement.getAttribute('data-sn-' + direction);
     if (typeof extSelector === 'string') {
       if (extSelector === '' ||
-          !focusExtendedSelector(extSelector)) {
+          !focusExtendedSelector(extSelector, direction)) {
         fireNavigatefailed(currentFocusedElement, direction);
         return false;
       }
@@ -826,7 +828,7 @@
         }
       }
 
-      return focusElement(next, nextSectionId);
+      return focusElement(next, nextSectionId, direction);
     } else if (gotoLeaveFor(currentSectionId, direction)) {
       return true;
     }
@@ -906,7 +908,7 @@
         }
 
         var focusProperties = {
-          section: sectionId
+          sectionId: sectionId
         };
 
         if (!fireEvent(target, 'willfocus', focusProperties)) {
