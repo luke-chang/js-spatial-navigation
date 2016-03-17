@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JavaScript SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../spatial_navigation.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+      $(function() {
+        $('#sidebar').click(function() {
+          $(this).addClass('focused');
+        });
+      });
+    </script>
+    <style>
+      html, body {
+        padding: 0;
+        margin: 0;
+        height: 100%;
+        background-color: #444;
+        font-family: sans-serif;
+      }
+
+      :focus {
+        outline: 0;
+      }
+
+      #container {
+        height: 100%;
+        overflow: hidden;
+      }
+
+      #sidebar {
+        position: absolute;
+        left: -300px;
+        top: 0;
+        width: 370px;
+        height: 100%;
+        box-shadow: 2px 0 20px 0 black;
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        transition: left 0.5s, background-color 0.3s;
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
+      #sidebar:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+      }
+
+      #sidebar.focused {
+        left: 0;
+      }
+
+      #icons {
+        margin-right: 22px;
+        transition: opacity 0.5s;
+        z-index: 10;
+      }
+
+      #icons div {
+        text-align: center;
+        margin: 30px 0;
+      }
+
+      #icons .fa {
+        color: #ccc;
+        font-size: 30px;
+      }
+
+      #sidebar.focused #icons {
+        opacity: 0;
+      }
+
+      #menu {
+        width: 100%;
+        height: 100%;
+        background-color: red;
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        transition: opacity 0.5s;
+        box-sizing: border-box;
+        padding-top: 70px;
+      }
+
+      #sidebar.focused #menu {
+        opacity: 1;
+      }
+
+      #menu .item {
+        height: 70px;
+        line-height: 70px;
+        color: white;
+        font-size: 25px;
+        padding-left: 90px;
+        box-sizing: border-box;
+        cursor: default;
+        display: none;
+        cursor: pointer;
+      }
+
+      #menu .item:hover {
+        background-color: rgba(0, 0, 0, 0.3);
+      }
+
+      #menu .item:focus {
+        background-color: white;
+        color: red;
+      }
+
+      #menu .item .fa {
+        width: 40px;
+      }
+
+      #sidebar.focused #menu .item {
+        display: block;
+      }
+
+      .mainbox {
+        width: 100%;
+        height: 100%;
+        box-sizing: border-box;
+        padding: 40px 0 0 120px;
+      }
+
+      #search-box-placeholder {
+        width: 70%;
+        height: 50px;
+        line-height: 50px;
+        background-color: #666;
+        box-sizing: border-box;
+        padding-left: 15px;
+        cursor: pointer;
+        font-size: 25px;
+        color: #aaa;
+      }
+
+      #search-box-placeholder:hover {
+        color: black;
+        background-color: white;
+      }
+
+      #content {
+        margin-top: 40px;
+        height: 100%;
+      }
+
+      #content .content {
+        white-space: nowrap;
+        font-size: 0;
+      }
+
+      #content h1 {
+        font-size: 30px;
+      }
+
+      #content .item {
+        display: inline-block;
+        width: 25%;
+        padding-bottom: 30%;
+        background-color: #666;
+        font-size: 1rem;
+        margin-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="container">
+      <div id="sidebar" tabindex="0">
+        <div id="icons">
+          <div><span class="fa fa-home"></span></div>
+          <div><span class="fa fa-star"></span></div>
+          <div><span class="fa fa-music"></span></div>
+          <div><span class="fa fa-ellipsis-v"></span></div>
+        </div>
+        <div id="menu">
+          <div class="item" tabindex="0"><i class="fa fa-user"></i> Login</div>
+          <div class="item" tabindex="0"><i class="fa fa-search"></i> Search</div>
+          <div class="item" tabindex="0"><i class="fa fa-home"></i> Home</div>
+          <div class="item" tabindex="0"><i class="fa fa-star"></i> Star</div>
+          <div class="item" tabindex="0"><i class="fa fa-music"></i> Music</div>
+          <div class="item" tabindex="0"><i class="fa fa-film"></i> Film</div>
+        </div>
+      </div>
+      <div class="mainbox">
+        <div id="search-box-placeholder"><i class="fa fa-search"></i></div>
+        <div id="content">
+          <div class="contentgroup">
+            <h1>Title 1</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup">
+            <h1>Title 2</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup">
+            <h1>Title 3</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup">
+            <h1>Title 4</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
