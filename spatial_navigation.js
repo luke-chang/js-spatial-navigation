@@ -576,9 +576,12 @@
     return lastFocusedElement;
   }
 
-  function fireEvent(elem, type, details) {
+  function fireEvent(elem, type, details, cancelable) {
+    if (arguments.length < 4) {
+      cancelable = true;
+    }
     var evt = document.createEvent('CustomEvent');
-    evt.initCustomEvent(EVENT_PREFIX + type, true, true, details);
+    evt.initCustomEvent(EVENT_PREFIX + type, true, cancelable, details);
     return elem.dispatchEvent(evt);
   }
 
@@ -620,7 +623,7 @@
         return false;
       }
       currentFocusedElement.blur();
-      fireEvent(currentFocusedElement, 'unfocused', unfocusProperties);
+      fireEvent(currentFocusedElement, 'unfocused', unfocusProperties, false);
     }
 
     var focusProperties = {
@@ -632,7 +635,7 @@
       return false;
     }
     elem.focus();
-    fireEvent(elem, 'focused', focusProperties);
+    fireEvent(elem, 'focused', focusProperties, false);
 
     _duringFocusChange = false;
 
@@ -712,7 +715,7 @@
   function fireNavigatefailed(elem, direction) {
     fireEvent(elem, 'navigatefailed', {
       direction: direction
-    });
+    }, false);
   }
 
   function gotoLeaveFor(sectionId, direction) {
@@ -911,7 +914,7 @@
           target.blur();
           _duringFocusChange = false;
         } else {
-          fireEvent(target, 'focused', focusProperties);
+          fireEvent(target, 'focused', focusProperties, false);
           focusChanged(target, sectionId);
         }
       }
@@ -922,14 +925,14 @@
     var target = evt.target;
     if (target !== window && target !== document && !_pause &&
         _sectionCount && !_duringFocusChange && getSectionId(target)) {
-      if (!fireEvent(target, 'willunfocus')) {
+      if (!fireEvent(target, 'willunfocus', {})) {
         _duringFocusChange = true;
         setTimeout(function() {
           target.focus();
           _duringFocusChange = false;
         });
       } else {
-        fireEvent(target, 'unfocused');
+        fireEvent(target, 'unfocused', {}, false);
       }
     }
   }
