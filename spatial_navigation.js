@@ -880,6 +880,16 @@
       return;
     }
 
+    var willmoveProperties = {
+      direction: direction,
+      sectionId: currentSectionId,
+      cause: 'keydown'
+    };
+
+    if (!fireEvent(currentFocusedElement, 'willmove', willmoveProperties)) {
+      return;
+    }
+
     focusNext(direction, currentFocusedElement, currentSectionId);
     return preventDefault();
   }
@@ -1134,6 +1144,16 @@
 
       var sectionId = getSectionId(elem);
       if (!sectionId) {
+        return false;
+      }
+
+      var willmoveProperties = {
+        direction: direction,
+        sectionId: sectionId,
+        cause: 'api'
+      };
+
+      if (!fireEvent(elem, 'willmove', willmoveProperties)) {
         return false;
       }
 

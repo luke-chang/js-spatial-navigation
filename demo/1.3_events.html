@@ -18,6 +18,7 @@
 
         // All valid events.
         var validEvents = [
+          'sn:willmove',
           'sn:willunfocus',
           'sn:unfocused',
           'sn:willfocus',
@@ -28,7 +29,7 @@
         ];
 
         var eventHandler = function(evt) {
-          console.log(evt.type + ': ' + evt.target.id);
+          console.log(evt.type, evt.target, evt.detail);
         };
 
         validEvents.forEach(function(type) {
