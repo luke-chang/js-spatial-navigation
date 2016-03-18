@@ -617,7 +617,8 @@
       var unfocusProperties = {
         nextElement: elem,
         nextSectionId: sectionId,
-        direction: direction
+        direction: direction,
+        native: false
       };
       if (!fireEvent(currentFocusedElement, 'willunfocus', unfocusProperties)) {
         _duringFocusChange = false;
@@ -630,7 +631,8 @@
     var focusProperties = {
       previousElement: currentFocusedElement,
       sectionId: sectionId,
-      direction: direction
+      direction: direction,
+      native: false
     };
     if (!fireEvent(elem, 'willfocus', focusProperties)) {
       _duringFocusChange = false;
@@ -918,7 +920,8 @@
         }
 
         var focusProperties = {
-          sectionId: sectionId
+          sectionId: sectionId,
+          native: true
         };
 
         if (!fireEvent(target, 'willfocus', focusProperties)) {
@@ -937,14 +940,17 @@
     var target = evt.target;
     if (target !== window && target !== document && !_pause &&
         _sectionCount && !_duringFocusChange && getSectionId(target)) {
-      if (!fireEvent(target, 'willunfocus', {})) {
+      var unfocusProperties = {
+        native: true
+      };
+      if (!fireEvent(target, 'willunfocus', unfocusProperties)) {
         _duringFocusChange = true;
         setTimeout(function() {
           target.focus();
           _duringFocusChange = false;
         });
       } else {
-        fireEvent(target, 'unfocused', {}, false);
+        fireEvent(target, 'unfocused', unfocusProperties, false);
       }
     }
   }

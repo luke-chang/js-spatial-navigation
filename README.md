@@ -309,7 +309,7 @@ The type "Selector" can be any of the following types.
 
 Following custom events are triggered by SpatialNavigation. You can bind them by `addEventListener()`.
 
-Focus-related events are wrappers of the native `focus`/`blur` ones so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
+Focus-related events are wrappers of the native `focus`/`blur` events so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
 
 **Note:** If you bind events via jQuery's [`.on()`](http://api.jquery.com/on/) API, you must change to `event.originalEvent.detail` to access the `detail` objects.
 
@@ -338,12 +338,15 @@ Fired when SpatialNavigation is about to move the focus.
     - nextElement: `<HTMLElement>` (Navigation Only)
     - nextSectionId: `<String>` (Navigation Only)
     - direction: `'left'`, `'right'`, `'up'` or `'down'` (Navigation Only)
+    - native: `<Boolean>`
 
 Fired when an element is about to lose the focus.
 
 `nextElement` and `nextSectionId` indicate where the focus will be moved next.
 
-`direction` is similar to [`sn:willmove`](#snwillmove) but will be omitted here if this move is not caused by direction (e.g. by `@` syntax or [`focus()`](#spatialnavigationfocussectionidselector-silent) directly).
+`direction` is similar to [`sn:willmove`](#snwillmove) but will be omitted here if this move is not caused by direction-related actions (e.g. by `@` syntax or [`focus()`](#spatialnavigationfocussectionidselector-silent) directly).
+
+`native` indicates whether this event is triggered by native focus-related events or not.
 
 **Note:** If it is caused by native `blur` event, SpatialNavigation will try to focus back to the original element when you cancel it (but not guaranteed).
 
@@ -355,6 +358,7 @@ Fired when an element is about to lose the focus.
     - nextElement: `<HTMLElement>` (Navigation Only)
     - nextSectionId: `<String>` (Navigation Only)
     - direction: `'left'`, `'right'`, `'up'` or `'down'` (Navigation Only)
+    - native: `<Boolean>`
 
 Fired when an element just lost the focus.
 
@@ -368,6 +372,7 @@ Event details are the same as [`sn:willunfocus`](#snwillunfocus).
     - sectionId: `<String>`
     - previousElement: `<HTMLElement>` (Navigation Only)
     - direction: `'left'`, `'right'`, `'up'` or `'down'` (Navigation Only)
+    - native: `<Boolean>`
 
 Fired when an element is about to get the focus.
 
@@ -375,7 +380,7 @@ Fired when an element is about to get the focus.
 
 `previousElement` indicates the last focused element before this move.
 
-`direction` is the same as [`sn:willunfocus`](#snwillunfocus).
+`direction` and `native` are the same as [`sn:willunfocus`](#snwillunfocus).
 
 **Note:** If it is caused by native `focus` event, SpatialNavigation will try to blur it immediately when you cancel it (but not guaranteed).
 
@@ -387,6 +392,7 @@ Fired when an element is about to get the focus.
     - sectionId: `<String>`
     - previousElement: `<HTMLElement>` (Navigation Only)
     - direction: `'left'`, `'right'`, `'up'` or `'down'` (Navigation Only)
+    - native: `<Boolean>`
 
 Fired when an element just got the focus.
 
