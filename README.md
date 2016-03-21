@@ -7,6 +7,7 @@ A javascript-based implementation of Spatial Navigation.
 * [Documentation](#documentation)
   + [API Reference](#api-reference)
   + [Configuration](#configuration)
+  + [Custom Attributes](#custom-attributes)
   + [Selector](#selector-1)
   + [Events](#events)
 * [Browser Support](#browser-support)
@@ -81,7 +82,7 @@ Documentation
 
 #### `SpatialNavigation.init()`
 
-Initializes SpatialNavigation and binds event listeners to the global object. It is a synchronous function so you don't need to await ready state.
+Initializes SpatialNavigation and binds event listeners to the global object. It is a synchronous function, so you don't need to await ready state.
 
 **Note:** It should be called before using any other methods of SpatialNavigation!
 
@@ -102,7 +103,7 @@ Adds a section to SpatialNavigation with its own configuration. The `config` has
 
 A section is a conceptual scope to define a set of elements no matter where they are in DOM structure. You can group elements based on their functions or behaviors (e.g. main, menu, dialog, etc.) into a section.
 
-Giving a `sectionId` to a section enables you to refer to it in other methods but is not required. SpatialNavigation allows you to set it by `config.id`, but beware that you cannot change it via [`set()`](#spatialnavigationsetsectionid-config) later.
+Giving a `sectionId` to a section enables you to refer to it in other methods but is not required. SpatialNavigation allows you to set it by `config.id` alternatively, yet it is not allowed in [`set()`](#spatialnavigationsetsectionid-config).
 
 #### `SpatialNavigation.remove(sectionId)`
 
@@ -137,7 +138,7 @@ Makes SpatialNavigation pause until [`resume()`](#spatialnavigationresume) is ca
 
 #### `SpatialNavigation.resume()`
 
-Resumes SpatialNavigation so it can react to key events and trigger events which paused because of [`pause()`](#spatialnavigationpause).
+Resumes SpatialNavigation, so it can react to key events and trigger events which paused because of [`pause()`](#spatialnavigationpause).
 
 #### `SpatialNavigation.focus([sectionId/selector], [silent])`
 
@@ -259,11 +260,11 @@ If the focus comes from another section, you can define which element in this se
   + Type: `null` or PlainObject
   + Default: `null`
 
-This property specifies which element should be focused next when a user presses the specified arrow key and intends to leave the current section.
+This property specifies which element should be focused next when a user presses the corresponding arrow key and intends to leave the current section.
 
-It should be a PlainObject consists of four properties: `'left'`, `'right'`, `'up'` and `'down'`. Each property should be a [selector](#selector-1). Any of these properties can be omitted and SpatialNavigation will follow the original rule to navigate.
+It should be a PlainObject consists of four properties: `'left'`, `'right'`, `'up'` and `'down'`. Each property should be a [Selector](#selector-1). Any of these properties can be omitted, and SpatialNavigation will follow the original rule to navigate.
 
-**Note:** If you assign an empty string to any of these properties, it makes SpatialNavigation go nowhere at that direction.
+**Note:** Assigning an empty string to any of these properties makes SpatialNavigation go nowhere at that direction.
 
 #### `restrict`
 
@@ -292,6 +293,21 @@ A callback function that accepts a DOM element as the first argument.
 
 SpatialNavigation calls this function every time when it tries to traverse every single candidate. You can ignore arbitrary elements by returning `false`.
 
+### Custom Attributes
+
+SpatialNavigation supports HTML `data-*` attributes as follows:
+
+  + `data-sn-left`
+  + `data-sn-right`
+  + `data-sn-up`
+  + `data-sn-down`
+
+They specifies which element should be focused next when a user presses the corresponding arrow key on an element with these attributes. This setting overrides any other settings in [`enterTo`](#enterto) and [`leaveFor`](#leavefor).
+
+The value of each attribute should be a [Selector](#selector-1). However, it only accepts **valid selector string** and **`@` syntax** for now. Any of these attributes can be omitted, and SpatialNavigation will follow the original rule to navigate.
+
+**Note:** Assigning an empty string to any of these attributes makes SpatialNavigation go nowhere at that direction.
+
 ### Selector
 
 The type "Selector" can be any of the following types.
@@ -309,7 +325,7 @@ The type "Selector" can be any of the following types.
 
 Following custom events are triggered by SpatialNavigation. You can bind them by `addEventListener()`.
 
-Focus-related events are wrappers of the native `focus`/`blur` events so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
+Focus-related events are also wrappers of the native `focus`/`blur` events, so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
 
 **Note:** If you bind events via jQuery's [`.on()`](http://api.jquery.com/on/) API, you must change to `event.originalEvent.detail` to access the `detail` objects.
 
@@ -324,11 +340,13 @@ Focus-related events are wrappers of the native `focus`/`blur` events so they ar
 
 Fired when SpatialNavigation is about to move the focus.
 
-`cause` indicates why this event happens. `'keydown'` means triggered by key events while `'api'` means triggered by calling [`move()`](#spatialnavigationmovedirection-selector)) directly.
+`cause` indicates why this move happens. `'keydown'` means triggered by key events while `'api'` means triggered by calling [`move()`](#spatialnavigationmovedirection-selector)) directly.
 
 `sectionId` indicates the currently focused section.
 
 `direction` indicates the direction given by arrow keys or [`move()`](#spatialnavigationmovedirection-selector) method.
+
+**Note:** Cancelling this event makes the default action be taken normally, i.e. key events will be handled by browser as usual.
 
 #### `sn:willunfocus`
 
