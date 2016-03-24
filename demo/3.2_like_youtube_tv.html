@@ -21,7 +21,8 @@
         });
 
         SN.add('content', {
-          selector: '.content .item'
+          selector: '.content .item',
+          enterTo: 'last-focused'
         });
 
         SN.add('search', {
@@ -45,17 +46,77 @@
         });
 
         $(window).on('sn:focused', function(evt) {
-          if ($(evt.target).is('#sidebar')) {
+          var $target = $(evt.target);
+          if ($target.is('#sidebar')) {
             $('#sidebar').addClass('focused');
             SN.disable('sidebar');
             setTimeout(function() {
               SN.focus('menu')
             }, 200);
-          } else if (!$(evt.target).parents('#sidebar').length) {
+          } else if (!$target.parents('#sidebar').length) {
             $('#sidebar').removeClass('focused');
             SN.enable('sidebar');
           }
         });
+
+        var currentRow = 1;
+        var duringAnimation = false;
+        $('.content .item')
+          .on('sn:willfocus', function() {
+            var $target = $(this);
+            var row = $target.parents('.contentgroup').data('content-row');
+            if (row > currentRow) {
+              SN.pause();
+
+              $('.contentgroup[data-content-row="' + currentRow + '"]')
+                .addClass('fading-out')
+                .fadeOut(300);
+
+              window.requestAnimationFrame(function() {
+                var $div = $('<div>').addClass('animate placeholder')
+                                     .prependTo('#content');
+
+                window.requestAnimationFrame(function() {
+                  $div.removeClass('placeholder').on('transitionend', function() {
+                    $div.remove();
+                    SN.focus($target);
+                    SN.resume();
+                  });
+                });
+              });
+
+              currentRow = row;
+              return false;
+            }
+            currentRow = row;
+          })
+          .on('sn:willmove', function(evt) {
+            if (duringAnimation) {
+              return false;
+            }
+
+            var detail = evt.originalEvent.detail;
+            if (detail.direction == 'up' && detail.cause == 'keydown' && currentRow > 1) {
+              duringAnimation = true;
+
+              window.requestAnimationFrame(function() {
+                var $targetRow = $('.contentgroup[data-content-row="' + (currentRow - 1) + '"]');
+                var $div = $('<div>').addClass('animate').prependTo('#content');
+                $targetRow.fadeIn(300);
+
+                window.requestAnimationFrame(function() {
+                  $div.addClass('placeholder').on('transitionend', function() {
+                    $div.remove();
+                    $targetRow.removeClass('fading-out');
+                    duringAnimation = false;
+                    SN.move('up');
+                  });
+                });
+              });
+
+              return false;
+            }
+          });
 
         SN.makeFocusable();
         SN.focus('content');
@@ -91,6 +152,7 @@
         justify-content: flex-end;
         transition: left 0.5s, background-color 0.3s;
         background-color: rgba(255, 255, 255, 0.1);
+        z-index: 100;
       }
 
       #sidebar:hover {
@@ -192,8 +254,8 @@
       }
 
       #content {
-        margin-top: 40px;
         height: 100%;
+        position: relative;
       }
 
       #content .content {
@@ -203,6 +265,10 @@
 
       #content h1 {
         font-size: 30px;
+        height: 80px;
+        padding: 0;
+        margin: 0;
+        line-height: 80px;
       }
 
       #content .item {
@@ -217,6 +283,29 @@
 
       #content .item:focus {
         background-color: white;
+      }
+
+      #content .animate {
+        width: 25%;
+        padding-bottom: 0;
+        transition: padding-bottom 0.3s ease;
+      }
+
+      #content .placeholder {
+        width: 25%;
+        padding-bottom: calc(30% + 80px);
+      }
+
+      .contentgroup {
+        width: 100%;
+        z-index: 2;
+      }
+
+      .contentgroup.fading-out {
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 1;
       }
     </style>
   </head>
@@ -241,7 +330,7 @@
       <div class="mainbox">
         <div id="search-box-placeholder"><i class="fa fa-search"></i></div>
         <div id="content">
-          <div class="contentgroup">
+          <div class="contentgroup" data-content-row="1">
             <h1>Title 1</h1>
             <div class="content">
               <div class="item"></div>
@@ -254,7 +343,7 @@
               <div class="item"></div>
             </div>
           </div>
-          <div class="contentgroup">
+          <div class="contentgroup" data-content-row="2">
             <h1>Title 2</h1>
             <div class="content">
               <div class="item"></div>
@@ -264,7 +353,7 @@
               <div class="item"></div>
             </div>
           </div>
-          <div class="contentgroup">
+          <div class="contentgroup" data-content-row="3">
             <h1>Title 3</h1>
             <div class="content">
               <div class="item"></div>
@@ -277,7 +366,7 @@
               <div class="item"></div>
             </div>
           </div>
-          <div class="contentgroup">
+          <div class="contentgroup" data-content-row="4">
             <h1>Title 4</h1>
             <div class="content">
               <div class="item"></div>
