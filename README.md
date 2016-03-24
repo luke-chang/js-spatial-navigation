@@ -346,8 +346,6 @@ Fired when SpatialNavigation is about to move the focus.
 
 `direction` indicates the direction given by arrow keys or [`move()`](#spatialnavigationmovedirection-selector) method.
 
-**Note:** Cancelling this event makes the default action be taken normally, i.e. key events will be handled by browser as usual.
-
 #### `sn:willunfocus`
 
   + bubbles: `true`

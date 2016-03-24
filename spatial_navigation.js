@@ -878,7 +878,6 @@
 
     var currentSectionId = getSectionId(currentFocusedElement);
     if (!currentSectionId) {
-      focusSection();
       return;
     }
 
@@ -888,11 +887,10 @@
       cause: 'keydown'
     };
 
-    if (!fireEvent(currentFocusedElement, 'willmove', willmoveProperties)) {
-      return;
+    if (fireEvent(currentFocusedElement, 'willmove', willmoveProperties)) {
+      focusNext(direction, currentFocusedElement, currentSectionId);
     }
 
-    focusNext(direction, currentFocusedElement, currentSectionId);
     return preventDefault();
   }
 
