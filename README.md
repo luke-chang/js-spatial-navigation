@@ -99,7 +99,7 @@ Resets the variable state without unbinding the event listeners.
   + `sectionId`: (optional) String
   + `config`: [Configuration](#configuration)
 
-Adds a section to SpatialNavigation with its own configuration. The `config` has not to contains all the properties. Those omitted properties will inherit global ones automatically.
+Adds a section to SpatialNavigation with its own configuration. The `config` doesn't have to contain all the properties. Those omitted will inherit global ones automatically.
 
 A section is a conceptual scope to define a set of elements no matter where they are in DOM structure. You can group elements based on their functions or behaviors (e.g. main, menu, dialog, etc.) into a section.
 
@@ -134,7 +134,7 @@ Enables the section with the specified `sectionId`. Elements defined in this sec
 
 #### `SpatialNavigation.pause()`
 
-Makes SpatialNavigation pause until [`resume()`](#spatialnavigationresume) is called. During its pause, SpatialNavigation stops to react to key events and does not trigger any custom events.
+Makes SpatialNavigation pause until [`resume()`](#spatialnavigationresume) is called. During its pause, SpatialNavigation stops to react to key events and will not trigger any custom events.
 
 #### `SpatialNavigation.resume()`
 
@@ -147,11 +147,9 @@ Resumes SpatialNavigation, so it can react to key events and trigger events whic
 
 Focuses the section with the specified `sectionId` or the first element that matches `selector`.
 
-If the first argument matches any of the existing `sectionId`, it will be regarded as a `sectionId`. Otherwise, it will be treated as `selector` instead.
+If the first argument matches any of the existing `sectionId`, it will be regarded as a `sectionId`. Otherwise, it will be treated as `selector` instead. If omitted, the default section, which is set by [`setDefaultSection()`](#spatialnavigationsetdefaultsectionsectionid), will be the substitution.
 
-If the first argument is omitted, the default section will be the substitution.
-
-Please refer to [`setDefaultSection()`](#spatialnavigationsetdefaultsectionsectionid) for more details about the default section.
+Setting `silent` to `true` lets you focus an element without triggering any custom events, but note that it does not stop native `focus` and `blur` events.
 
 #### `SpatialNavigation.move(direction, [selector])`
 
@@ -166,13 +164,15 @@ Moves the focus to the given `direction` based on the rule of SpatialNavigation.
 
 A helper to add `tabindex="-1"` to elements defined in the specified section to make them focusable. If `sectionId` is omitted, it applies to all sections.
 
-**Note:** It won't affect elements which have been focusable or have not been appended to DOM tree yet.
+**Note:** It won't affect elements which have been focusable already or have not been appended to DOM tree yet.
 
 #### `SpatialNavigation.setDefaultSection([sectionId])`
 
   + `sectionId`: (optional) String
 
 Assigns the specified section to be the default section. It will be used as a substitution in certain methods, of which if `sectionId` is omitted.
+
+Calling this method without the argument can reset the default section to `undefined`.
 
 ### Configuration
 
