@@ -203,7 +203,7 @@ Following is an example with default values.
   + Type: [Selector](#selector-1)
   + Default: `''`
 
-Elements matching `selector` are all regraded as navigable elements in SpatialNavigation.
+Elements matching `selector` are regraded as navigable elements in SpatialNavigation. However, hidden or disabled elements are ignored as they can not be focused in any way.
 
 #### `straightOnly`
 
