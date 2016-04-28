@@ -82,7 +82,7 @@ Documentation
 
 #### `SpatialNavigation.init()`
 
-Initializes SpatialNavigation and binds event listeners to the global object. It is a synchronous function, so you don't need to await ready state.
+Initializes SpatialNavigation and binds event listeners to the global object. It is a synchronous function, so you don't need to await ready state. Calling `init()` more than once is possible since SpatialNavigation internally prevents it from reiterating the initialization.
 
 **Note:** It should be called before using any other methods of SpatialNavigation!
 
@@ -154,7 +154,7 @@ Setting `silent` to `true` lets you focus an element without triggering any cust
 #### `SpatialNavigation.move(direction, [selector])`
 
   + `direction`: `'left'`, `'right'`, `'up'` or `'down'`
-  + `selector`: (optional) Selector (without @ syntax)
+  + `selector`: (optional) [Selector](#selector-1) (without @ syntax)
 
 Moves the focus to the given `direction` based on the rule of SpatialNavigation. The first element matches `selector` is regarded as the origin. If `selector` is omitted, SpatialNavigation will move the focus based on the currently focused element.
 
@@ -319,7 +319,7 @@ The type "Selector" can be any of the following types.
 * a string `'@<sectionId>'` to indicate the specified section
 * a string `'@'` to indicate the default section
 
-**Note:** Certain methods do not accept the `@` syntax.
+**Note:** Certain methods do not accept the `@` syntax (including both `@` and `@<sectionId>`).
 
 ### Events
 
