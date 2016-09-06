@@ -203,7 +203,7 @@ Following is an example with default values.
   + Type: [Selector](#selector-1)
   + Default: `''`
 
-Elements matching `selector` are regraded as navigable elements in SpatialNavigation. However, hidden or disabled elements are ignored as they can not be focused in any way.
+Elements matching `selector` are regarded as navigable elements in SpatialNavigation. However, hidden or disabled elements are ignored as they can not be focused in any way.
 
 #### `straightOnly`
 
@@ -302,9 +302,9 @@ SpatialNavigation supports HTML `data-*` attributes as follows:
   + `data-sn-up`
   + `data-sn-down`
 
-They specifies which element should be focused next when a user presses the corresponding arrow key on an element with these attributes. This setting overrides any other settings in [`enterTo`](#enterto) and [`leaveFor`](#leavefor).
+They specifies which element should be focused next when a user presses the corresponding arrow key. This setting overrides any other settings in [`enterTo`](#enterto) and [`leaveFor`](#leavefor).
 
-The value of each attribute should be a [Selector](#selector-1). However, it only accepts **valid selector string** and **`@` syntax** for now. Any of these attributes can be omitted, and SpatialNavigation will follow the original rule to navigate.
+The value of each attribute should be a [Selector](#selector-1) and only accepts strings (the **valid selector string** and **`@` syntax** described below) for now. Any of these attributes can be omitted, and SpatialNavigation will follow the original rule to navigate.
 
 **Note:** Assigning an empty string to any of these attributes makes SpatialNavigation go nowhere at that direction.
 
@@ -316,14 +316,14 @@ The type "Selector" can be any of the following types.
 * a [NodeList](https://developer.mozilla.org/en-US/docs/Web/API/NodeList) or an array containing DOM elements
 * a single DOM element
 * a jQuery object
-* a string `'@<sectionId>'` to indicate the specified section
+* a string `'@<sectionId>'` to indicate the specified section (e.g. `'@test-section'` indicates the section whose id is `test-section`.
 * a string `'@'` to indicate the default section
 
 **Note:** Certain methods do not accept the `@` syntax (including both `@` and `@<sectionId>`).
 
 ### Events
 
-Following custom events are triggered by SpatialNavigation. You can bind them by `addEventListener()`.
+Following custom events are triggered by SpatialNavigation. You can bind them by `addEventListener()`. Some events are marked **"cancelable"**, which means you can cancel them by `Event.preventDefault()`, as usual.
 
 Focus-related events are also wrappers of the native `focus`/`blur` events, so they are triggered as well even SpatialNavigation is not involved. In this case, some properties in `event.detail` may be omitted. This kind of properties is marked **"Navigation Only"** below.
 
