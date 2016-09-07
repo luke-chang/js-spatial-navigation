@@ -73,7 +73,7 @@ Although SpatialNavigation is a standalone (pure-javascript-based) library, it c
 
 ### More Demonstrations
 
-+ [Demonstrations](http://luke-chang.github.io/js-spatial-navigation/demo/)
++ [Demonstrations](https://luke-chang.github.io/js-spatial-navigation/demo/)
 
 Documentation
 -------------
@@ -156,7 +156,7 @@ Setting `silent` to `true` lets you focus an element without triggering any cust
   + `direction`: `'left'`, `'right'`, `'up'` or `'down'`
   + `selector`: (optional) [Selector](#selector-1) (without @ syntax)
 
-Moves the focus to the given `direction` based on the rule of SpatialNavigation. The first element matches `selector` is regarded as the origin. If `selector` is omitted, SpatialNavigation will move the focus based on the currently focused element.
+Moves the focus to the given `direction` based on the rule of SpatialNavigation. The first element matching `selector` is regarded as the origin. If `selector` is omitted, SpatialNavigation will move the focus based on the currently focused element.
 
 #### `SpatialNavigation.makeFocusable([sectionId])`
 
@@ -441,9 +441,9 @@ Fired when ENTER key is released.
 Browser Support
 ---------------
 
-Chrome 5, Firefox 4, IE 9, Opera 10.5, Safari 5
+Chrome 5, Firefox 12, IE 9, Opera 11.5, Safari 5
 
 License
 -------
 
-Copyright (c) 2016 Luke Chang. Licensed under the MPL license.
+Copyright (c) 2017 Luke Chang. Licensed under the MPL 2.0.
