@@ -194,7 +194,8 @@ Following is an example with default values.
   leaveFor: null,
   restrict: 'self-first',
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
-  navigableFilter: null
+  navigableFilter: null,
+  ignoreInnerDimensionValidator: false
 }
 ```
 
@@ -292,6 +293,15 @@ Elements matching `tabIndexIgnoreList` will never be affected by [`makeFocusable
 A callback function that accepts a DOM element as the first argument.
 
 SpatialNavigation calls this function every time when it tries to traverse every single candidate. You can ignore arbitrary elements by returning `false`.
+
+#### `ignoreInnerDimensionValidation`
+
+  + Type: `'boolean'`
+  + Default: `false`
+
+When the library checks whether an element is navigable or not it checks whether the inner width and height values are greater than zero. There're
+cases where the inner width and height are zero but the element is still visible and therefore needs to be focusable. To fix it I have added a new option
+to disable that check for a particular section or globally.
 
 ### Custom Attributes
 
