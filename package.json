@@ -23,6 +23,7 @@
   "homepage": "https://github.com/exozet/js-spatial-navigation#readme",
   "devDependencies": {
     "grunt": "^1.0.1",
-    "grunt-contrib-uglify": "^2.0.0"
+    "grunt-contrib-uglify": "^2.0.0",
+    "jit-grunt": "^0.10.0"
   }
 }
