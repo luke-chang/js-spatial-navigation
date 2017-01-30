@@ -33,7 +33,7 @@
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
     navigableFilter: null,
-    ignoreInnerDimensionValidator: false
+    ignoreInnerDimensionValidation: false
   };
 
   /*********************/
@@ -520,10 +520,10 @@
       return false;
     }
 
-    var ignoreInnerDimensionValidator = (typeof _sections[sectionId].ignoreInnerDimensionValidator === 'boolean' && _sections[sectionId].ignoreInnerDimensionValidator === true) ||
-                                        (typeof GlobalConfig.ignoreInnerDimensionValidator === 'boolean' && GlobalConfig.ignoreInnerDimensionValidator === true);
+    var ignoreInnerDimensionValidation = (typeof _sections[sectionId].ignoreInnerDimensionValidation === 'boolean' && _sections[sectionId].ignoreInnerDimensionValidation === true) ||
+                                        (typeof GlobalConfig.ignoreInnerDimensionValidation === 'boolean' && GlobalConfig.ignoreInnerDimensionValidation === true);
 
-    if ((!ignoreInnerDimensionValidator && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
+    if ((!ignoreInnerDimensionValidation && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
         elem.hasAttribute('disabled')) {
       return false;
     }
