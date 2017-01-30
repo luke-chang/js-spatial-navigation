@@ -78,18 +78,21 @@ Although SpatialNavigation is a standalone (pure-javascript-based) library, it c
 Deployment
 ----------
 
-After changing the source files you can create a new build by entering following line:
+After changing the source file you can create a new build by entering following line:
 
 ```shell
 grunt
 ```
 
 This will create a new minified version of the library and saves it into the ``dist`` folder.
-In case you haven't grunt available yet, just enter 
+In case you haven't Grunt available yet, just enter 
 
 ```shell
 npm install
 ```
+
+and Grunt as well as all the needed plugins will be installed in your repository folder. Afterwards you
+can perform the instruction from above to create a new minified version of the library.
 
 Documentation
 -------------
