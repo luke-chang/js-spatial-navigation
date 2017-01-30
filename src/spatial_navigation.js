@@ -32,7 +32,8 @@
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
-    navigableFilter: null
+    navigableFilter: null,
+    ignoreInnerDimensionValidator: false
   };
 
   /*********************/
@@ -518,7 +519,11 @@
         !_sections[sectionId] || _sections[sectionId].disabled) {
       return false;
     }
-    if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
+
+    var ignoreInnerDimensionValidator = (typeof _sections[sectionId].ignoreInnerDimensionValidator === 'boolean' && _sections[sectionId].ignoreInnerDimensionValidator === true) ||
+                                        (typeof GlobalConfig.ignoreInnerDimensionValidator === 'boolean' && GlobalConfig.ignoreInnerDimensionValidator === true);
+
+    if ((!ignoreInnerDimensionValidator && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
         elem.hasAttribute('disabled')) {
       return false;
     }
