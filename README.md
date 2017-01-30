@@ -75,6 +75,22 @@ Although SpatialNavigation is a standalone (pure-javascript-based) library, it c
 
 + [Demonstrations](https://luke-chang.github.io/js-spatial-navigation/demo/)
 
+Deployment
+----------
+
+After changing the source files you can create a new build by entering following line:
+
+```shell
+grunt
+```
+
+This will create a new minified version of the library and saves it into the ``dist`` folder.
+In case you haven't grunt available yet, just enter 
+
+```shell
+npm install
+```
+
 Documentation
 -------------
 
