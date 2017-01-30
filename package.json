@@ -20,5 +20,9 @@
   "bugs": {
     "url": "https://github.com/exozet/js-spatial-navigation/issues"
   },
-  "homepage": "https://github.com/exozet/js-spatial-navigation#readme"
+  "homepage": "https://github.com/exozet/js-spatial-navigation#readme",
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-uglify": "^2.0.0"
+  }
 }
