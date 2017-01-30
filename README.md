@@ -299,9 +299,9 @@ SpatialNavigation calls this function every time when it tries to traverse every
   + Type: `'boolean'`
   + Default: `false`
 
-When the library checks whether an element is navigable or not it checks whether the inner width and height values are greater than zero. There're
-cases where the inner width and height are zero but the element is still visible and therefore needs to be focusable. To fix it I have added a new option
-to disable that check for a particular section or globally.
+When the library checks whether an element is navigable or not, it validates the inner width and height values to be greater than zero
+and only then there're navigable. There're also cases where the inner width and height are zero but the element is still visible and therefore needs to be focusable. 
+In such cases it's possible to disable that validator for a particular section or globally.
 
 ### Custom Attributes
 
