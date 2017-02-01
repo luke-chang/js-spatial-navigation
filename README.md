@@ -214,7 +214,7 @@ Following is an example with default values.
   restrict: 'self-first',
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
   navigableFilter: null,
-  ignoreInnerDimensionValidator: false
+  ignoreOffsetDimensionValidation: false
 }
 ```
 
@@ -313,14 +313,14 @@ A callback function that accepts a DOM element as the first argument.
 
 SpatialNavigation calls this function every time when it tries to traverse every single candidate. You can ignore arbitrary elements by returning `false`.
 
-#### `ignoreInnerDimensionValidation`
+#### `ignoreOffsetDimensionValidation`
 
   + Type: `'boolean'`
   + Default: `false`
 
-When the library checks whether an element is navigable or not, it validates the inner width and height values to be greater than zero
-and only then there're navigable. There're also cases where the inner width and height are zero but the element is still visible and therefore needs to be focusable. 
-In such cases it's possible to disable that validator for a particular section or globally.
+When the library checks whether an element is navigable or not, it validates the offset width and height values to be greater than zero
+and only then the element is navigable. There're also cases where the offset width and height are zero but the element is still visible and therefore needs to be focusable. 
+In such cases it's possible to disable the validation at all for a particular section or globally.
 
 ### Custom Attributes
 
