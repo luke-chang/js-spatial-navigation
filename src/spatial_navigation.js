@@ -33,6 +33,18 @@
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
     navigableFilter: null,
+
+    /**
+     * Disables offset dimension validation.
+     * 
+     * Usually before an element get focused it'll be checked
+     * whether it's navigable or not. To do so it checks, among other things, whether
+     * the offsetWidth or the offsetHeight is greater than null because then it means
+     * that element is visible. Some elements haven't any offsetWidth or offsetHeight 
+     * defined even though they're visible to the viewer. To make those elements 
+     * navigable this option can be set to true and the validation will be ignored. 
+     * That option is available for a particular section or globally.
+     */
     ignoreOffsetDimensionValidation: false
   };
 
