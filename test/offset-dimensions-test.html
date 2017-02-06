@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8" />
+
+        <title>Spatial Navigation - Offset Dimensions Test</title>
+
+        <style type="text/css">
+            #focusable a {
+                display: block;
+            }
+        </style>
+    </head>
+
+    <body>
+        <main>
+            <h1>Spatial Navigation - Offset Dimensions Test</h1>
+
+            <ul>
+                <li id="not-focusable">
+                    <a href="https://github.com/luke-chang/js-spatial-navigation" link="Not focusable by default!">
+                        <article>
+                            Not focusable by default!
+                        </article>
+                    </a>
+
+                    <div id="not-focusable-result"></div>
+                </li>
+
+                <li id="focusable-option">
+                    <a href="https://github.com/luke-chang/js-spatial-navigation" link="Focusable using the new option!">
+                        <article>
+                            Focusable using the new option!
+                        </article>
+                    </a>
+
+                    <div id="focusable-option-result"></div>
+                </li>
+
+                <li id="focusable">
+                    <a href="https://github.com/luke-chang/js-spatial-navigation" link="Focusable non-inline element">Focusable by default because the option was set to block!</a>
+
+                    <div id="focusable-result"></div>
+                </li>
+            </ul>
+        </main>
+
+        <script type="text/javascript" src="../dist/spatial_navigation.min.js"></script>
+        <script type="text/javascript">
+            function addSection(id, enabled)
+            {
+                if (typeof id === 'string' && id.length > 0) {
+                    SpatialNavigation.add(id, {
+                        selector: '#' + id + ' a',
+                        ignoreOffsetDimensionValidation: (typeof enabled === 'boolean' && enabled === true)
+                    });
+                    
+                    SpatialNavigation.makeFocusable(id);
+                }
+            };
+
+            function testFocus(id)
+            {
+                if (typeof id === 'string' && id.length > 0) {
+                    var outputElement = document.getElementById(id + '-result');
+
+                    if (outputElement !== null) {
+                        outputElement.innerHTML = 'Is focusable: ' + SpatialNavigation.focus(id);
+                    }
+                }
+            };
+
+            SpatialNavigation.init();
+            
+            addSection('not-focusable', false);
+            addSection('focusable-option', true);
+            addSection('focusable', false);
+
+            testFocus('not-focusable');
+            testFocus('focusable-option');
+            testFocus('focusable');
+        </script>
+    </body>
+</html>

@@ -75,6 +75,25 @@ Although SpatialNavigation is a standalone (pure-javascript-based) library, it c
 
 + [Demonstrations](https://luke-chang.github.io/js-spatial-navigation/demo/)
 
+Deployment
+----------
+
+After changing the source file you can create a new build by entering following line:
+
+```shell
+grunt
+```
+
+This will create a new minified version of the library and saves it into the ``dist`` folder.
+In case you haven't Grunt available yet, just enter 
+
+```shell
+npm install
+```
+
+and Grunt as well as all the needed plugins will be installed in your repository folder. Afterwards you
+can perform the instruction from above to create a new minified version of the library.
+
 Documentation
 -------------
 
@@ -194,7 +213,8 @@ Following is an example with default values.
   leaveFor: null,
   restrict: 'self-first',
   tabIndexIgnoreList: 'a, input, select, textarea, button, iframe, [contentEditable=true]',
-  navigableFilter: null
+  navigableFilter: null,
+  ignoreOffsetDimensionValidation: false
 }
 ```
 
@@ -292,6 +312,15 @@ Elements matching `tabIndexIgnoreList` will never be affected by [`makeFocusable
 A callback function that accepts a DOM element as the first argument.
 
 SpatialNavigation calls this function every time when it tries to traverse every single candidate. You can ignore arbitrary elements by returning `false`.
+
+#### `ignoreOffsetDimensionValidation`
+
+  + Type: `'boolean'`
+  + Default: `false`
+
+When the library checks whether an element is navigable or not, it validates the offset width and height values to be greater than zero
+and only then the element is navigable. There're also cases where the offset width and height are zero but the element is still visible and therefore needs to be focusable. 
+In such cases it's possible to disable the validation at all for a particular section or globally.
 
 ### Custom Attributes
 

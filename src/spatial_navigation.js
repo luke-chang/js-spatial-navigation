@@ -1,10 +1,10 @@
-/*
+/**
  * A javascript-based implementation of Spatial Navigation.
  *
  * Copyright (c) 2017 Luke Chang.
  * https://github.com/luke-chang/js-spatial-navigation
  *
- * Licensed under the MPL 2.0.
+ * @license Licensed under the MPL 2.0.
  */
 ;(function($) {
   'use strict';
@@ -32,7 +32,20 @@
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
-    navigableFilter: null
+    navigableFilter: null,
+
+    /**
+     * Disables offset dimension validation.
+     * 
+     * Usually before an element get focused it'll be checked
+     * whether it's navigable or not. To do so it checks, among other things, whether
+     * the offsetWidth or the offsetHeight is greater than null because then it means
+     * that element is visible. Some elements haven't any offsetWidth or offsetHeight 
+     * defined even though they're visible to the viewer. To make those elements 
+     * navigable this option can be set to true and the validation will be ignored. 
+     * That option is available for a particular section or globally.
+     */
+    ignoreOffsetDimensionValidation: false
   };
 
   /*********************/
@@ -518,7 +531,11 @@
         !_sections[sectionId] || _sections[sectionId].disabled) {
       return false;
     }
-    if ((elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
+
+    var ignoreOffsetDimensionValidation = (typeof _sections[sectionId].ignoreOffsetDimensionValidation === 'boolean' && _sections[sectionId].ignoreOffsetDimensionValidation === true) ||
+                                        (typeof GlobalConfig.ignoreOffsetDimensionValidation === 'boolean' && GlobalConfig.ignoreOffsetDimensionValidation === true);
+
+    if ((!ignoreOffsetDimensionValidation && elem.offsetWidth <= 0 && elem.offsetHeight <= 0) ||
         elem.hasAttribute('disabled')) {
       return false;
     }
