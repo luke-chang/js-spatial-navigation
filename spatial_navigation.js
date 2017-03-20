@@ -896,6 +896,10 @@
   }
 
   function onKeyUp(evt) {
+    // prevent hijacking shortcuts
+    if (evt.getModifierState()){
+      return
+    }
     if (!_pause && _sectionCount && evt.keyCode == 13) {
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
