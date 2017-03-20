@@ -841,7 +841,7 @@
   }
 
   function onKeyDown(evt) {
-    if (!_sectionCount || _pause) {
+    if (!_sectionCount || _pause || evt.altKey || evt.ctrlKey || evt.metaKey || evt.shitKey) {
       return;
     }
 
@@ -897,7 +897,7 @@
 
   function onKeyUp(evt) {
     // prevent hijacking shortcuts
-    if (evt.getModifierState()){
+   if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shitKey){
       return
     }
     if (!_pause && _sectionCount && evt.keyCode == 13) {
