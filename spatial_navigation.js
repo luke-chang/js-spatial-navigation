@@ -841,8 +841,8 @@
   }
 
   function onKeyDown(evt) {
-    if (!_sectionCount || _pause || evt.altKey || 
-      evt.ctrlKey || evt.metaKey || evt.shitKey) {
+    if (!_sectionCount || _pause ||
+        evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
       return;
     }
 
@@ -897,7 +897,7 @@
   }
 
   function onKeyUp(evt) {
-    if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shitKey) {
+    if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
       return
     }
     if (!_pause && _sectionCount && evt.keyCode == 13) {
