@@ -841,7 +841,8 @@
   }
 
   function onKeyDown(evt) {
-    if (!_sectionCount || _pause) {
+    if (!_sectionCount || _pause || evt.altKey || 
+      evt.ctrlKey || evt.metaKey || evt.shitKey) {
       return;
     }
 
@@ -896,6 +897,9 @@
   }
 
   function onKeyUp(evt) {
+    if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shitKey) {
+      return
+    }
     if (!_pause && _sectionCount && evt.keyCode == 13) {
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
