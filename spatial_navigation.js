@@ -32,17 +32,14 @@
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
-    navigableFilter: null
-  };
-
-  /*********************/
-  /* Constant Variable */
-  /*********************/
-  var KEYMAPPING = {
-    '37': 'left',
-    '38': 'up',
-    '39': 'right',
-    '40': 'down'
+    navigableFilter: null,
+    directionKeys: {
+      '37': 'left',
+      '38': 'up',
+      '39': 'right',
+      '40': 'down'
+    },
+    enterKey: 13
   };
 
   var REVERSE = {
@@ -853,9 +850,9 @@
       return false;
     };
 
-    var direction = KEYMAPPING[evt.keyCode];
+    var direction = GlobalConfig.directionKeys[evt.keyCode];
     if (!direction) {
-      if (evt.keyCode == 13) {
+      if (evt.keyCode == GlobalConfig.enterKey) {
         currentFocusedElement = getCurrentFocusedElement();
         if (currentFocusedElement && getSectionId(currentFocusedElement)) {
           if (!fireEvent(currentFocusedElement, 'enter-down')) {
@@ -900,7 +897,7 @@
     if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
       return
     }
-    if (!_pause && _sectionCount && evt.keyCode == 13) {
+    if (!_pause && _sectionCount && evt.keyCode == GlobalConfig.enterKey) {
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
         if (!fireEvent(currentFocusedElement, 'enter-up')) {
