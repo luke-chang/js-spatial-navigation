@@ -1062,7 +1062,9 @@
         _sections[sectionId] = undefined;
         _sections = extend({}, _sections);
         _sectionCount--;
-        _lastSectionId === sectionId && (_lastSectionId = '');
+        if (_lastSectionId === sectionId) {
+          _lastSectionId = '';
+        }
         return true;
       }
       return false;
