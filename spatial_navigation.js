@@ -1212,6 +1212,13 @@
   };
 
   window.SpatialNavigation = SpatialNavigation;
+  
+  /**********************/
+  /* CommonJS Interface */
+  /**********************/
+  if (typeof module === 'object') {
+      module.exports = SpatialNavigation;
+  }
 
   /********************/
   /* jQuery Interface */
