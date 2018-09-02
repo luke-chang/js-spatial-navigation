@@ -1,0 +1,184 @@
+html, body {
+  padding: 0;
+  margin: 0;
+  height: 100%;
+  background-color: #444;
+  font-family: sans-serif;
+}
+
+:focus {
+  outline: 0;
+}
+
+#container {
+  height: 100%;
+  overflow: hidden;
+}
+
+#sidebar {
+  position: absolute;
+  left: -300px;
+  top: 0;
+  width: 370px;
+  height: 100%;
+  box-shadow: 2px 0 20px 0 black;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  transition: left 0.5s, background-color 0.3s;
+  background-color: rgba(255, 255, 255, 0.1);
+  z-index: 100;
+}
+
+#sidebar:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+#sidebar.focused {
+  left: 0;
+}
+
+#icons {
+  margin-right: 22px;
+  transition: opacity 0.5s;
+  z-index: 10;
+}
+
+#icons div {
+  text-align: center;
+  margin: 30px 0;
+}
+
+#icons .fa {
+  color: #ccc;
+  font-size: 30px;
+}
+
+#sidebar.focused #icons {
+  opacity: 0;
+}
+
+#menu {
+  width: 100%;
+  height: 100%;
+  background-color: red;
+  position: absolute;
+  left: 0;
+  top: 0;
+  opacity: 0;
+  transition: opacity 0.5s;
+  box-sizing: border-box;
+  padding-top: 70px;
+}
+
+#sidebar.focused #menu {
+  opacity: 1;
+}
+
+#menu .item {
+  height: 70px;
+  line-height: 70px;
+  color: white;
+  font-size: 25px;
+  padding-left: 90px;
+  box-sizing: border-box;
+  cursor: default;
+  display: none;
+  cursor: pointer;
+}
+
+#menu .item:hover {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+#menu .item:focus {
+  background-color: white;
+  color: red;
+}
+
+#menu .item .fa {
+  width: 40px;
+}
+
+#sidebar.focused #menu .item {
+  display: block;
+}
+
+.mainbox {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  padding: 40px 0 0 120px;
+}
+
+#search-box-placeholder {
+  width: 70%;
+  height: 50px;
+  line-height: 50px;
+  background-color: #666;
+  box-sizing: border-box;
+  padding-left: 15px;
+  cursor: pointer;
+  font-size: 25px;
+  color: #aaa;
+}
+
+#search-box-placeholder:hover, #search-box-placeholder:focus {
+  color: black;
+  background-color: white;
+}
+
+#content {
+  height: 100%;
+  position: relative;
+}
+
+#content .content {
+  white-space: nowrap;
+  font-size: 0;
+}
+
+#content h1 {
+  font-size: 30px;
+  height: 80px;
+  padding: 0;
+  margin: 0;
+  line-height: 80px;
+}
+
+#content .item {
+  display: inline-block;
+  width: 25%;
+  padding-bottom: 30%;
+  background-color: #666;
+  font-size: 1rem;
+  margin-right: 20px;
+  cursor: pointer;
+}
+
+#content .item:focus {
+  background-color: white;
+}
+
+#content .animate {
+  width: 25%;
+  padding-bottom: 0;
+  transition: padding-bottom 0.3s ease;
+}
+
+#content .placeholder {
+  width: 25%;
+  padding-bottom: calc(30% + 80px);
+}
+
+.contentgroup {
+  width: 100%;
+  z-index: 2;
+}
+
+.contentgroup.fading-out {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1;
+}
