@@ -237,7 +237,7 @@ When it is `true`, elements defined in this section are unnavigable. This proper
 
 #### `defaultElement`
 
-  + Type: [Selector](#selector-1) (without @ syntax)
+  + Type: [Selector](#selector-1) (without @ syntax) or callback function `(sectionId: string, direction: Direction) => Selector | undefined`
   + Default: `''`
 
 When a section is specified to be the next focused target, e.g. [`focus('some-section-id')`](#spatialnavigationfocussectionidselector-silent) is called, the first element matching `defaultElement` within this section will be chosen first.

@@ -1,0 +1,10 @@
+{
+  "name": "js-spatial-navigation",
+  "version": "1.0.0",
+  "description": "A javascript-based implementation of Spatial Navigation.",
+  "main": "spatial_navigation.js",
+  "types": "./spatial_navigation.d.ts",
+  "repository": "https://github.com/pertsim/js-spatial-navigation.git",
+  "author": "Luke Chang, Simon Pertschy <simon.pertschy@netstream.ch>",
+  "license": "MPL-2.0"
+}

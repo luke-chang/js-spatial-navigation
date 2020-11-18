@@ -553,8 +553,11 @@
     });
   }
 
-  function getSectionDefaultElement(sectionId) {
+  function getSectionDefaultElement(sectionId,direction) {
     var defaultElement = _sections[sectionId].defaultElement;
+    if(defaultElement && typeof defaultElement === 'function') {
+      defaultElement = defaultElement(sectionId,direction);
+    }
     if (!defaultElement) {
       return null;
     }
@@ -823,7 +826,7 @@
                              getSectionDefaultElement(nextSectionId);
             break;
           case 'default-element':
-            enterToElement = getSectionDefaultElement(nextSectionId);
+            enterToElement = getSectionDefaultElement(nextSectionId,direction);
             break;
         }
         if (enterToElement) {
