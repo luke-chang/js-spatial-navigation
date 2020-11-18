@@ -1,6 +1,6 @@
 {
   "name": "netstream-spatial-navigation",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A javascript-based implementation of Spatial Navigation.",
   "main": "spatial_navigation.js",
   "types": "./spatial_navigation.d.ts",
