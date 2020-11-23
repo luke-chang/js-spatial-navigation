@@ -664,10 +664,10 @@
   function focusExtendedSelector(selector, direction) {
     if (selector.charAt(0) == '@') {
       if (selector.length == 1) {
-        return focusSection();
+        return focusSection(null, direction);
       } else {
         var sectionId = selector.substr(1);
-        return focusSection(sectionId);
+        return focusSection(sectionId,direction);
       }
     } else {
       var next = parseSelector(selector)[0];
@@ -681,7 +681,16 @@
     return false;
   }
 
-  function focusSection(sectionId) {
+  function getEnterTo(sectionId, direction) {
+    var section = _sections[sectionId]
+    if(typeof section.enterTo === 'object') {
+       return direction ? section.enterTo[direction] : section.enterTo['fallback'];
+    }else {
+      return section.enterTo;
+    }
+  }
+
+  function focusSection(sectionId, direction) {
     var range = [];
     var addRange = function(id) {
       if (id && range.indexOf(id) < 0 &&
@@ -702,7 +711,7 @@
       var id = range[i];
       var next;
 
-      if (_sections[id].enterTo == 'last-focused') {
+      if (getEnterTo(id,direction) == 'last-focused') {
         next = getSectionLastFocusedElement(id) ||
                getSectionDefaultElement(id) ||
                getSectionNavigableElements(id)[0];
@@ -820,10 +829,10 @@
         }
 
         var enterToElement;
-        switch (_sections[nextSectionId].enterTo) {
+        switch (getEnterTo(nextSectionId,direction)) {
           case 'last-focused':
             enterToElement = getSectionLastFocusedElement(nextSectionId) ||
-                             getSectionDefaultElement(nextSectionId);
+                             getSectionDefaultElement(nextSectionId,direction);
             break;
           case 'default-element':
             enterToElement = getSectionDefaultElement(nextSectionId,direction);

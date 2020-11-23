@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JavaScript SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="css/style_4.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../spatial_navigation.js"></script>
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+        $(function () {
+            var SN = SpatialNavigation;
+
+            SN.init();
+
+            SN.add({
+                id: 'menu',
+                selector: '.menu .focusable',
+
+                // Setting this to "last-focused" means the last focused element in
+                // this section will be focused first whenever the focus jumps into
+                // this section from another section.
+                enterTo: {
+                    up: 'last-focused',
+                    fallback: 'default-element'
+                },
+                defaultElement: '.menu > .focusable:nth-child(1)',
+            });
+
+            SN.add({
+                id: 'main',
+                selector: '.main .focusable',
+                enterTo: {
+                    down: 'default-element',
+                    up: 'last-focused',
+                    right: 'default-element',
+                    left: 'default-element',
+                    fallback: 'default-element'
+                },
+                defaultElement: '.main > .focusable:nth-child(1)',
+            });
+
+            SN.add({
+                id: 'footer',
+                selector: '.footer .focusable'
+            });
+
+            $('.backToMenu')
+                .on('sn:enter-down', function () {
+                    SN.focus('menu')
+                });
+
+            SN.makeFocusable();
+            SN.focus();
+        });
+    </script>
+</head>
+<body>
+
+<h1>Grid Layout</h1>
+
+<p>This grid layout contains six columns and three rows:</p>
+
+<div class="grid-container">
+    <div class="menu">
+        <div class="focusable checked" data-id="1">Menu 1</div>
+        <div class="focusable" data-id="2">Menu 2</div>
+        <div class="focusable" data-id="3">Menu 3</div>
+        <div class="focusable" data-id="4">Menu 4</div>
+        <div class="focusable" data-id="5">Menu 5</div>
+        <div class="focusable" data-id="6">Menu 6</div>
+    </div>
+    <div class="main">
+        <div class="focusable" data-id="1">Main 1</div>
+        <div class="focusable" data-id="2">Main 2</div>
+        <div class="focusable" data-id="3">Main 3</div>
+        <div class="focusable" data-id="4">Main 4</div>
+        <div class="focusable" data-id="5">Main 5</div>
+        <div class="focusable" data-id="6">Main 6</div>
+        <div class="focusable" data-id="3">Main 7</div>
+        <div class="focusable" data-id="4">Main 8</div>
+        <div class="focusable" data-id="5">Main 9</div>
+        <div class="focusable" data-id="6">Main 10</div>
+    </div>
+    <div class="footer">
+        <div class="focusable backToMenu" data-id="1">Back to menu</div>
+    </div>
+</div>
+
+</body>
+</html>
+

@@ -244,7 +244,7 @@ When a section is specified to be the next focused target, e.g. [`focus('some-se
 
 #### `enterTo`
 
-  + Type: `''`, `'last-focused'` or `'default-element'`
+  + Type: `''`, `'last-focused'`, `'default-element'` or PlainObject
   + Default: `''`
 
 If the focus comes from another section, you can define which element in this section should be focused first.
@@ -252,6 +252,10 @@ If the focus comes from another section, you can define which element in this se
 `'last-focused'` indicates the last focused element before we left this section last time. If this section has never been focused yet, the default element (if any) will be chosen next.
 
 `'default-element'` indicates the element defined in [`defaultElement`](#defaultelement).
+
+PlainObject containing following optional properties: `'left'`, `'right'`, `'up'`, `'down'` and following required property: `'fallback'`.
+Each property can have one of the values: `''`, `'last-focused'` or `'default-element'`.
+
 
 `''` (empty string) implies following the original rule without any change.
 
