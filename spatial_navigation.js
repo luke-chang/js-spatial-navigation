@@ -559,7 +559,14 @@
       return null;
     }
     if (typeof defaultElement === 'string') {
-      defaultElement = parseSelector(defaultElement)[0];
+      var elements = parseSelector(defaultElement);
+      // check each element to see if it's navigable and stop when one has been found
+      for (var element of elements) {
+        if (isNavigable(element, sectionId, true)) {
+          return element;
+        }
+      }
+      return null;
     } else if ($ && defaultElement instanceof $) {
       defaultElement = defaultElement.get(0);
     }
