@@ -240,7 +240,7 @@ When it is `true`, elements defined in this section are unnavigable. This proper
   + Type: [Selector](#selector-1) (without @ syntax)
   + Default: `''`
 
-When a section is specified to be the next focused target, e.g. [`focus('some-section-id')`](#spatialnavigationfocussectionidselector-silent) is called, the first element matching `defaultElement` within this section will be chosen first.
+When a section is specified to be the next focused target, e.g. [`focus('some-section-id')`](#spatialnavigationfocussectionidselector-silent) is called, the first navigable element matching `defaultElement` within this section will be chosen first.
 
 #### `enterTo`
 

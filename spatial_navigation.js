@@ -554,19 +554,13 @@
   }
 
   function getSectionDefaultElement(sectionId) {
-    var defaultElement = _sections[sectionId].defaultElement;
+    var defaultElement = parseSelector(_sections[sectionId].defaultElement).find(function(elem) {
+      return isNavigable(elem, sectionId, true);
+    });
     if (!defaultElement) {
       return null;
     }
-    if (typeof defaultElement === 'string') {
-      defaultElement = parseSelector(defaultElement)[0];
-    } else if ($ && defaultElement instanceof $) {
-      defaultElement = defaultElement.get(0);
-    }
-    if (isNavigable(defaultElement, sectionId, true)) {
-      return defaultElement;
-    }
-    return null;
+    return defaultElement;
   }
 
   function getSectionLastFocusedElement(sectionId) {
@@ -898,7 +892,7 @@
 
   function onKeyUp(evt) {
     if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
-      return
+      return;
     }
     if (!_pause && _sectionCount && evt.keyCode == 13) {
       var currentFocusedElement = getCurrentFocusedElement();
@@ -1212,7 +1206,7 @@
   };
 
   window.SpatialNavigation = SpatialNavigation;
-  
+
   /**********************/
   /* CommonJS Interface */
   /**********************/
