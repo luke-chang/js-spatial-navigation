@@ -558,22 +558,13 @@
     if (!defaultElement) {
       return null;
     }
-    if (typeof defaultElement === 'string') {
-      var elements = parseSelector(defaultElement);
-      // check each element to see if it's navigable and stop when one has been found
-      for (var element of elements) {
-        if (isNavigable(element, sectionId, true)) {
-          return element;
-        }
-      }
+    defaultElement = parseSelector(_sections[sectionId].defaultElement).find(function(elem) {
+      return isNavigable(elem, sectionId, true);
+    });
+    if (!defaultElement) {
       return null;
-    } else if ($ && defaultElement instanceof $) {
-      defaultElement = defaultElement.get(0);
     }
-    if (isNavigable(defaultElement, sectionId, true)) {
-      return defaultElement;
-    }
-    return null;
+    return defaultElement;
   }
 
   function getSectionLastFocusedElement(sectionId) {
