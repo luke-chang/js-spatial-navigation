@@ -449,17 +449,21 @@
   }
 
   function parseSelector(selector) {
-    var result;
-    if ($) {
-      result = $(selector).get();
-    } else if (typeof selector === 'string') {
-      result = [].slice.call(document.querySelectorAll(selector));
-    } else if (typeof selector === 'object' && selector.length) {
-      result = [].slice.call(selector);
-    } else if (typeof selector === 'object' && selector.nodeType === 1) {
-      result = [selector];
-    } else {
-      result = [];
+    var result = [];
+    try {
+      if (selector) {
+        if ($) {
+          result = $(selector).get();
+        } else if (typeof selector === 'string') {
+          result = [].slice.call(document.querySelectorAll(selector));
+        } else if (typeof selector === 'object' && selector.length) {
+          result = [].slice.call(selector);
+        } else if (typeof selector === 'object' && selector.nodeType === 1) {
+          result = [selector];
+        }
+      }
+    } catch (err) {
+      console.error(err)
     }
     return result;
   }
