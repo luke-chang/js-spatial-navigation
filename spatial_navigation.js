@@ -1,7 +1,7 @@
 /*
  * A javascript-based implementation of Spatial Navigation.
  *
- * Copyright (c) 2017 Luke Chang.
+ * Copyright (c) 2022 Luke Chang.
  * https://github.com/luke-chang/js-spatial-navigation
  *
  * Licensed under the MPL 2.0.

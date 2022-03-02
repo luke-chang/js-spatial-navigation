@@ -446,4 +446,4 @@ Chrome 5, Firefox 12, IE 9, Opera 11.5, Safari 5
 License
 -------
 
-Copyright (c) 2017 Luke Chang. Licensed under the MPL 2.0.
+Copyright (c) 2022 Luke Chang. Licensed under the MPL 2.0.
