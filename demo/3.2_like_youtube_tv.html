@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>JavaScript SpatialNavigation Demo Page</title>
+
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/style_3.2.css">
+
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+    <script src="../spatial_navigation.js"></script>
+    <script src="js/util.js"></script>
+    <script>
+      $(function() {
+        var SN = SpatialNavigation;
+
+        SN.init();
+
+        SN.set({
+          straightOnly: true
+        });
+
+        SN.add('content', {
+          selector: '.content .item',
+          enterTo: 'last-focused'
+        });
+
+        SN.add('search', {
+          selector: '#search-box-placeholder'
+        });
+
+        SN.add('sidebar', {
+          selector: '#sidebar'
+        });
+
+        SN.add('menu', {
+          selector: '#menu .item',
+          defaultElement: '#menu .item:first-child',
+          enterTo: 'default-element',
+          leaveFor: {
+            right: '@content',
+            up: '',
+            down: '',
+            left: ''
+          }
+        });
+
+        $(window).on('sn:focused', function(evt) {
+          var $target = $(evt.target);
+          if ($target.is('#sidebar')) {
+            $('#sidebar').addClass('focused');
+            SN.disable('sidebar');
+            setTimeout(function() {
+              SN.focus('menu')
+            }, 200);
+          } else if (!$target.parents('#sidebar').length) {
+            $('#sidebar').removeClass('focused');
+            SN.enable('sidebar');
+          }
+        });
+
+        var currentRow = 1;
+        var duringAnimation = false;
+        $('.content .item')
+          .on('sn:willfocus', function() {
+            var $target = $(this);
+            var row = $target.parents('.contentgroup').data('content-row');
+            if (row > currentRow) {
+              SN.pause();
+
+              $('.contentgroup[data-content-row="' + currentRow + '"]')
+                .addClass('fading-out')
+                .fadeOut(300);
+
+              window.requestAnimationFrame(function() {
+                var $div = $('<div>').addClass('animate placeholder')
+                                     .prependTo('#content');
+
+                window.requestAnimationFrame(function() {
+                  $div.removeClass('placeholder').on('transitionend', function() {
+                    $div.remove();
+                    SN.focus($target);
+                    SN.resume();
+                  });
+                });
+              });
+
+              currentRow = row;
+              return false;
+            }
+            currentRow = row;
+          })
+          .on('sn:willmove', function(evt) {
+            if (duringAnimation) {
+              return false;
+            }
+
+            var detail = evt.originalEvent.detail;
+            if (detail.direction == 'up' && detail.cause == 'keydown' && currentRow > 1) {
+              duringAnimation = true;
+
+              window.requestAnimationFrame(function() {
+                var $targetRow = $('.contentgroup[data-content-row="' + (currentRow - 1) + '"]');
+                var $div = $('<div>').addClass('animate').prependTo('#content');
+                $targetRow.fadeIn(300);
+
+                window.requestAnimationFrame(function() {
+                  $div.addClass('placeholder').on('transitionend', function() {
+                    $div.remove();
+                    $targetRow.removeClass('fading-out');
+                    duringAnimation = false;
+                    SN.move('up');
+                  });
+                });
+              });
+
+              return false;
+            }
+          });
+
+        SN.makeFocusable();
+        SN.focus('content');
+      });
+    </script>
+  </head>
+  <body>
+    <div id="container">
+      <div id="sidebar">
+        <div id="icons">
+          <div><span class="fa fa-home"></span></div>
+          <div><span class="fa fa-star"></span></div>
+          <div><span class="fa fa-music"></span></div>
+          <div><span class="fa fa-ellipsis-v"></span></div>
+        </div>
+        <div id="menu">
+          <div class="item"><i class="fa fa-user"></i> Login</div>
+          <div class="item"><i class="fa fa-search"></i> Search</div>
+          <div class="item"><i class="fa fa-home"></i> Home</div>
+          <div class="item"><i class="fa fa-star"></i> Star</div>
+          <div class="item"><i class="fa fa-music"></i> Music</div>
+          <div class="item"><i class="fa fa-film"></i> Film</div>
+        </div>
+      </div>
+      <div class="mainbox">
+        <div id="search-box-placeholder"><i class="fa fa-search"></i></div>
+        <div id="content">
+          <div class="contentgroup" data-content-row="1">
+            <h1>Title 1</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup" data-content-row="2">
+            <h1>Title 2</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup" data-content-row="3">
+            <h1>Title 3</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+          <div class="contentgroup" data-content-row="4">
+            <h1>Title 4</h1>
+            <div class="content">
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+              <div class="item"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
