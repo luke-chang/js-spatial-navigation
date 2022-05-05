@@ -23,6 +23,7 @@
     selector: '',           // can be a valid <extSelector> except "@" syntax.
     straightOnly: false,
     straightOverlapThreshold: 0.5,
+    distanceMode: false,
     rememberSource: false,
     disabled: false,
     defaultElement: '',     // <extSelector> except "@" syntax.
@@ -222,7 +223,26 @@
       },
       rightIsBetter: function(rect) {
         return -1 * rect.right;
-      }
+      },
+      nearDistanceIsBetter: function (rect) {
+        var dx, dy;
+        if (rect.center.y < targetRect.center.y) {
+          dy = targetRect.top - rect.bottom;
+        } else {
+          dy = rect.top - targetRect.bottom;
+        }
+
+        if (rect.center.x < targetRect.center.x) {
+          dx = targetRect.left - rect.right;
+        } else {
+          dx = rect.left - targetRect.right;
+        }        
+
+        dx = dx < 0 ? 0 : dx;
+        dy = dy < 0 ? 0 : dy;
+
+        return Math.sqrt(dx * dx + dy * dy);        
+      },
     };
   }
 
@@ -291,119 +311,157 @@
     );
 
     var priorities;
+    if(config.distanceMode === true)    
+    {
+      var candidatePartitions;
+      var _targetInternelGroup = [];
+      var _targetGroup = [];
+      switch (direction) {
+        case "left":
+          candidatePartitions = [0, 3, 6];
+          break;
+        case "right":
+          candidatePartitions = [2, 5, 8];
+          break;
+        case "up":
+          candidatePartitions = [0, 1, 2];
+          break;
+        case "down":
+          candidatePartitions = [6, 7, 8];
+          break;
+      }
 
-    switch (direction) {
-      case 'left':
-        priorities = [
-          {
-            group: internalGroups[0].concat(internalGroups[3])
-                                     .concat(internalGroups[6]),
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.topIsBetter
-            ]
-          },
-          {
-            group: groups[3],
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.topIsBetter
-            ]
-          },
-          {
-            group: groups[0].concat(groups[6]),
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.rightIsBetter,
-              distanceFunction.nearTargetTopIsBetter
-            ]
-          }
-        ];
-        break;
-      case 'right':
-        priorities = [
-          {
-            group: internalGroups[2].concat(internalGroups[5])
-                                     .concat(internalGroups[8]),
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.topIsBetter
-            ]
-          },
-          {
-            group: groups[5],
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.topIsBetter
-            ]
-          },
-          {
-            group: groups[2].concat(groups[8]),
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.leftIsBetter,
-              distanceFunction.nearTargetTopIsBetter
-            ]
-          }
-        ];
-        break;
-      case 'up':
-        priorities = [
-          {
-            group: internalGroups[0].concat(internalGroups[1])
-                                     .concat(internalGroups[2]),
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.leftIsBetter
-            ]
-          },
-          {
-            group: groups[1],
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.leftIsBetter
-            ]
-          },
-          {
-            group: groups[0].concat(groups[2]),
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.bottomIsBetter,
-              distanceFunction.nearTargetLeftIsBetter
-            ]
-          }
-        ];
-        break;
-      case 'down':
-        priorities = [
-          {
-            group: internalGroups[6].concat(internalGroups[7])
-                                     .concat(internalGroups[8]),
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.leftIsBetter
-            ]
-          },
-          {
-            group: groups[7],
-            distance: [
-              distanceFunction.nearHorizonIsBetter,
-              distanceFunction.leftIsBetter
-            ]
-          },
-          {
-            group: groups[6].concat(groups[8]),
-            distance: [
-              distanceFunction.nearPlumbLineIsBetter,
-              distanceFunction.topIsBetter,
-              distanceFunction.nearTargetLeftIsBetter
-            ]
-          }
-        ];
-        break;
-      default:
-        return null;
+      candidatePartitions.forEach(function (index) {                
+        _targetInternelGroup = _targetInternelGroup.concat(internalGroups[index]);
+        _targetGroup = _targetGroup.concat(groups[index]);        
+      });
+
+      priorities = [
+        {
+          group: _targetInternelGroup,
+          distance: [distanceFunction.nearDistanceIsBetter],
+        },
+        {
+          group: _targetGroup,
+          distance: [distanceFunction.nearDistanceIsBetter],
+        },
+      ];
     }
+    else{
+      switch (direction) {
+        case 'left':
+          priorities = [
+            {
+              group: internalGroups[0].concat(internalGroups[3])
+                                       .concat(internalGroups[6]),
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.topIsBetter
+              ]
+            },
+            {
+              group: groups[3],
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.topIsBetter
+              ]
+            },
+            {
+              group: groups[0].concat(groups[6]),
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.rightIsBetter,
+                distanceFunction.nearTargetTopIsBetter
+              ]
+            }
+          ];
+          break;
+        case 'right':
+          priorities = [
+            {
+              group: internalGroups[2].concat(internalGroups[5])
+                                       .concat(internalGroups[8]),
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.topIsBetter
+              ]
+            },
+            {
+              group: groups[5],
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.topIsBetter
+              ]
+            },
+            {
+              group: groups[2].concat(groups[8]),
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.leftIsBetter,
+                distanceFunction.nearTargetTopIsBetter
+              ]
+            }
+          ];
+          break;
+        case 'up':
+          priorities = [
+            {
+              group: internalGroups[0].concat(internalGroups[1])
+                                       .concat(internalGroups[2]),
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.leftIsBetter
+              ]
+            },
+            {
+              group: groups[1],
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.leftIsBetter
+              ]
+            },
+            {
+              group: groups[0].concat(groups[2]),
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.bottomIsBetter,
+                distanceFunction.nearTargetLeftIsBetter
+              ]
+            }
+          ];
+          break;
+        case 'down':
+          priorities = [
+            {
+              group: internalGroups[6].concat(internalGroups[7])
+                                       .concat(internalGroups[8]),
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.leftIsBetter
+              ]
+            },
+            {
+              group: groups[7],
+              distance: [
+                distanceFunction.nearHorizonIsBetter,
+                distanceFunction.leftIsBetter
+              ]
+            },
+            {
+              group: groups[6].concat(groups[8]),
+              distance: [
+                distanceFunction.nearPlumbLineIsBetter,
+                distanceFunction.topIsBetter,
+                distanceFunction.nearTargetLeftIsBetter
+              ]
+            }
+          ];
+          break;
+        default:
+          return null;
+      }
+    }
+
 
     if (config.straightOnly) {
       priorities.pop();
