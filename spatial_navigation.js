@@ -9,6 +9,18 @@
 ;(function($) {
   'use strict';
 
+  /*********************/
+  /* Constant Variable */
+  /*********************/
+  var DEFAULT_KEYMAPPING = {
+    '37': 'left',
+    '38': 'up',
+    '39': 'right',
+    '40': 'down'
+  };
+
+  var DEFAULT_SELECT_KEY_CODES = [13];
+
   /************************/
   /* Global Configuration */
   /************************/
@@ -32,17 +44,9 @@
     restrict: 'self-first', // 'self-first', 'self-only', 'none'
     tabIndexIgnoreList:
       'a, input, select, textarea, button, iframe, [contentEditable=true]',
-    navigableFilter: null
-  };
-
-  /*********************/
-  /* Constant Variable */
-  /*********************/
-  var KEYMAPPING = {
-    '37': 'left',
-    '38': 'up',
-    '39': 'right',
-    '40': 'down'
+    navigableFilter: null,
+    keyMapping: DEFAULT_KEYMAPPING,
+    selectKeyCodes: DEFAULT_SELECT_KEY_CODES
   };
 
   var REVERSE = {
@@ -851,9 +855,9 @@
       return false;
     };
 
-    var direction = KEYMAPPING[evt.keyCode];
+    var direction = GlobalConfig.keyMapping[evt.keyCode];
     if (!direction) {
-      if (evt.keyCode == 13) {
+      if (GlobalConfig.selectKeyCodes.includes(evt.keyCode)) {
         currentFocusedElement = getCurrentFocusedElement();
         if (currentFocusedElement && getSectionId(currentFocusedElement)) {
           if (!fireEvent(currentFocusedElement, 'enter-down')) {
@@ -898,7 +902,7 @@
     if (evt.altKey || evt.ctrlKey || evt.metaKey || evt.shiftKey) {
       return;
     }
-    if (!_pause && _sectionCount && evt.keyCode == 13) {
+    if (!_pause && _sectionCount && GlobalConfig.selectKeyCodes.includes(evt.keyCode)) {
       var currentFocusedElement = getCurrentFocusedElement();
       if (currentFocusedElement && getSectionId(currentFocusedElement)) {
         if (!fireEvent(currentFocusedElement, 'enter-up')) {
